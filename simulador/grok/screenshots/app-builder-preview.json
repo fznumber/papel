@@ -1,0 +1,39 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "CoTwin",
+      "hasCanvas": true,
+      "bodyTextLen": 815,
+      "bodyTextHash": "14f23c3d811c2eb3b1f5099c369995361b501600ef5f61b3e7d89aa7855473cc",
+      "bodyTextPrefix": "CO-ROTANTE V2 CoTwin PETG-CF · Ø 25.3 mm · eje 1/4″ (6.35 mm) Is",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "CoTwin",
+      "hasCanvas": true,
+      "bodyTextLen": 125,
+      "bodyTextHash": "672ffdc6a4ba469c5b655716c342a79007b9856e745db79ef7766dd228dd6c72",
+      "bodyTextPrefix": "CO-ROTANTE V2 CoTwin PETG-CF · Ø 25.3 mm · eje 1/4″ (6.35 mm) RP",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [
+    "BRAND WARNING: this looks like a game/canvas app but src/lib/og/site.json is missing \"type\": \"x:game\". X uses og:type=x:game to present the unfurl as a game card — set it in /workspace/src/lib/og/site.json per /workspace/.grok/skills/og/SKILL.md. Do not invent x:type or overload twitter:card as the game signal.",
+    "BRAND WARNING: this looks like a game/canvas app but /workspace/public/x-banner.jpg is missing. Games need a 50:11 X feed card (1200×264 JPEG) at public/x-banner.jpg — open /workspace/.grok/skills/og/SKILL.md and finish the brand-asset pass."
+  ],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

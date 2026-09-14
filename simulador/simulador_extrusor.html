@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Simulacion Tornillo Extrusor - Three.js</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #1a1a1a; }
+        canvas { display: block; }
+        #info { 
+            position: absolute; 
+            top: 15px; 
+            left: 15px; 
+            color: white; 
+            font-family: sans-serif; 
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black;
+        }
+        /* Nuevo panel de controles inferior */
+        #controls-bottom {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            background: rgba(30, 30, 30, 0.85);
+            padding: 15px 25px;
+            border-radius: 12px;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            border: 1px solid #444;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #0056b3; }
+        
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            color: white;
+            font-family: sans-serif;
+            font-size: 14px;
+            align-items: center;
+            min-width: 180px;
+        }
+        input[type=range] {
+            width: 100%;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">Simulación Extrusor Co-Rotante V2 (Z1-Z4)</div>
+    
+    <!-- Panel de Controles -->
+    <div id="controls-bottom">
+        <button id="btn-play">⏸ Pausar</button>
+        
+        <div class="slider-container">
+            <label for="speed-slider">Velocidad: <span id="speed-val">1.0</span>x</label>
+            <!-- El slider va de -5 (Reversa rápido) a 5 (Adelante rápido) -->
+            <input type="range" id="speed-slider" min="-5" max="5" step="0.1" value="1.0">
+        </div>
+
+        <button id="btn-wireframe">👀 Vista Rayos X</button>
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- PARÁMETROS GEOMÉTRICOS ---
+        const od_nominal = 25.3;
+        const screw_clearance = 0.4;
+        const root_radius = 7.85;
+        const center_distance = 25.3;
+
+        const r_peak = (od_nominal - screw_clearance) / 2;  
+        const r_root = root_radius - (screw_clearance / 2); 
+        const lobe_off = r_peak - r_root;                  
+
+        // --- CONFIGURACIÓN BÁSICA DE THREE.JS ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x202020);
+        
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
+        camera.position.set(0, -150, 150);
+        camera.lookAt(0, 0, 250);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.target.set(0, 0, 250); 
+
+        // Luces
+        const ambientLight = new THREE.AmbientLight(0x555555);
+        scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.position.set(50, -100, 200);
+        scene.add(dirLight);
+
+        // --- GENERADORES DE GEOMETRÍA ---
+        function createStadiumShape() {
+            const shape = new THREE.Shape();
+            shape.absarc(lobe_off, 0, r_root, -Math.PI/2, Math.PI/2, false);
+            shape.lineTo(-lobe_off, r_root);
+            shape.absarc(-lobe_off, 0, r_root, Math.PI/2, -Math.PI/2, false);
+            shape.lineTo(lobe_off, -r_root);
+            return shape;
+        }
+
+        function phaseConvey(length, pitch, startAngle, hand = "R", color) {
+            const sign = (hand === "R") ? -1 : 1;
+            const twistAngle = sign * (length / pitch) * Math.PI * 2; 
+            
+            const shape = createStadiumShape();
+            const geometry = new THREE.ExtrudeGeometry(shape, {
+                steps: Math.max(Math.floor(length / 2), 10),
+                depth: length,
+                bevelEnabled: false
+            });
+
+            const positions = geometry.attributes.position;
+            for (let i = 0; i < positions.count; i++) {
+                let x = positions.getX(i);
+                let y = positions.getY(i);
+                let z = positions.getZ(i);
+                
+                const angle = startAngle + (twistAngle * (z / length));
+                const cosA = Math.cos(angle);
+                const sinA = Math.sin(angle);
+                
+                positions.setX(i, x * cosA - y * sinA);
+                positions.setY(i, x * sinA + y * cosA);
+            }
+            geometry.computeVertexNormals();
+
+            const material = new THREE.MeshStandardMaterial({ color: color, metalness: 0.3, roughness: 0.4 });
+            return new THREE.Mesh(geometry, material);
+        }
+
+        function phaseKnead(length, elements, staggerAngle, startAngle, hand = "F", color) {
+            const group = new THREE.Group();
+            const hElem = length / elements;
+            const sign = (hand === "F") ? -1 : 1;
+            const staggerRad = staggerAngle * (Math.PI / 180);
+            const startRad = startAngle * (Math.PI / 180);
+
+            for (let i = 0; i < elements; i++) {
+                const shape = createStadiumShape();
+                const geometry = new THREE.ExtrudeGeometry(shape, {
+                    steps: 1,
+                    depth: hElem + 0.02,
+                    bevelEnabled: false
+                });
+                
+                const material = new THREE.MeshStandardMaterial({ color: color, metalness: 0.3, roughness: 0.4 });
+                const mesh = new THREE.Mesh(geometry, material);
+                
+                mesh.position.z = (i * hElem) - 0.01;
+                mesh.rotation.z = startRad + (i * sign * staggerRad);
+                group.add(mesh);
+            }
+            return group;
+        }
+
+        // --- ENSAMBLAJE ---
+        function buildScrew() {
+            const screw = new THREE.Group();
+            let z = 0;
+            const ov = 0.02; 
+
+            function addPhase(mesh, length) {
+                mesh.position.z = z - ov;
+                screw.add(mesh);
+                z += length;
+            }
+
+            // Z1
+            addPhase(phaseConvey(50.60, 50.60, 0, "R", 0xff0000), 50.60); 
+            addPhase(phaseConvey(50.60, 50.60, 0, "R", 0xffa500), 50.60); 
+            addPhase(phaseConvey(37.95, 37.95, 0, "R", 0xffff00), 37.95); 
+
+            // Z2
+            addPhase(phaseConvey(37.95, 37.95, 0, "R", 0x00ff00), 37.95); 
+            addPhase(phaseKnead(37.95, 5, 45, 0, "F", 0x32cd32), 37.95); 
+            addPhase(phaseConvey(18.98, 18.98, Math.PI, "R", 0x808000), 18.98); 
+
+            // Z3
+            addPhase(phaseKnead(37.95, 5, 45, Math.PI, "R", 0x00ffff), 37.95); 
+            addPhase(phaseConvey(18.98, 18.98, 0, "L", 0x4682b4), 18.98); 
+            addPhase(phaseKnead(37.95, 5, 45, 0, "R", 0x0000ff), 37.95); 
+            addPhase(phaseConvey(18.98, 18.98, Math.PI, "L", 0x000080), 18.98); 
+            addPhase(phaseKnead(37.95, 4, 90, Math.PI, "N", 0x800080), 37.95); 
+            addPhase(phaseConvey(18.98, 18.98, Math.PI/2, "L", 0xff00ff), 18.98); 
+            addPhase(phaseKnead(37.95, 5, 45, Math.PI/2, "R", 0xffc0cb), 37.95); 
+            addPhase(phaseConvey(18.98, 18.98, 1.5*Math.PI, "R", 0xdc143c), 18.98); 
+
+            // Z4
+            addPhase(phaseConvey(37.95, 37.95, 1.5*Math.PI, "R", 0x8b4513), 37.95); 
+            addPhase(phaseConvey(37.95, 37.95, 1.5*Math.PI, "R", 0x808080), 37.95); 
+
+            return screw;
+        }
+
+        const screw1 = buildScrew();
+        screw1.position.x = -center_distance / 2;
+        scene.add(screw1);
+
+        const screw2 = buildScrew();
+        screw2.position.x = center_distance / 2;
+        screw2.rotation.z = Math.PI / 2; 
+        scene.add(screw2);
+
+        // --- LÓGICA DE LA INTERFAZ DE USUARIO ---
+        let isWireframe = false;
+        let isPlaying = true;
+        let rotSpeed = 1.0;
+
+        const btnWireframe = document.getElementById('btn-wireframe');
+        const btnPlay = document.getElementById('btn-play');
+        const speedSlider = document.getElementById('speed-slider');
+        const speedVal = document.getElementById('speed-val');
+
+        // Botón Rayos X
+        btnWireframe.addEventListener('click', () => {
+            isWireframe = !isWireframe; 
+            const toggleMaterial = (child) => {
+                if (child.isMesh && child.material) child.material.wireframe = isWireframe;
+            };
+            screw1.traverse(toggleMaterial);
+            screw2.traverse(toggleMaterial);
+            
+            btnWireframe.style.backgroundColor = isWireframe ? "#dc143c" : "#007bff";
+            btnWireframe.innerText = isWireframe ? "🔴 Desactivar Rayos X" : "👀 Vista Rayos X";
+        });
+
+        // Botón Play/Pausa
+        btnPlay.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            btnPlay.innerText = isPlaying ? "⏸ Pausar" : "▶ Reproducir";
+            btnPlay.style.backgroundColor = isPlaying ? "#007bff" : "#28a745";
+        });
+
+        // Slider de Velocidad
+        speedSlider.addEventListener('input', (e) => {
+            rotSpeed = parseFloat(e.target.value);
+            speedVal.innerText = rotSpeed.toFixed(1);
+        });
+
+        // --- BUCLE DE ANIMACIÓN ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            
+            // Si está reproduciendo, calcula la rotación, si no, se queda en 0
+            const rotationAmount = isPlaying ? (rotSpeed * delta) : 0;
+            
+            screw1.rotation.z -= rotationAmount; 
+            screw2.rotation.z -= rotationAmount; 
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Ajustar al tamaño de la ventana
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

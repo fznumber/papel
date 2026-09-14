@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --color-background: #0b0c0e;
+  --color-foreground: #e6e4de;
+  --color-card: #131417;
+  --color-card-foreground: #e6e4de;
+  --color-popover: #17181c;
+  --color-popover-foreground: #e6e4de;
+  --color-primary: #c9d1d8;
+  --color-primary-foreground: #0b0c0e;
+  --color-secondary: #1a1c20;
+  --color-secondary-foreground: #e6e4de;
+  --color-muted: #1a1c20;
+  --color-muted-foreground: #8a8d93;
+  --color-accent: #c9d1d8;
+  --color-accent-foreground: #0b0c0e;
+  --color-destructive: #b07070;
+  --color-destructive-foreground: #e6e4de;
+  --color-border: #2a2c31;
+  --color-input: #2a2c31;
+  --color-ring: #c9d1d8;
+  --color-ok: #7a9e8a;
+  --color-steel: #7d8b96;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-border: 0 0 0 1px rgb(230 228 222 / 0.08);
+  --shadow-border-hover: 0 0 0 1px rgb(230 228 222 / 0.14);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  * {
+    border-color: var(--color-border);
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100dvh;
+    background: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  body {
+    font-family: var(--font-sans);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

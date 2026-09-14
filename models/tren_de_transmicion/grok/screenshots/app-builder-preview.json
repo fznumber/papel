@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "TwinLock 253",
+      "hasCanvas": false,
+      "bodyTextLen": 1830,
+      "bodyTextHash": "fa4dbdb7b16503b2951b1704d8e8102a47ce4f2fc4f618ea58b8cef8e7b16775",
+      "bodyTextPrefix": "TSE · FIBRILACIÓN DE CELULOSA TwinLock 253 CD 25.3 mm Co-rotante",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "TwinLock 253",
+      "hasCanvas": false,
+      "bodyTextLen": 1816,
+      "bodyTextHash": "c030b2b8db4b9be4ef6095828ce061df8e6cf3101d71d4974568862d8ef3a062",
+      "bodyTextPrefix": "TSE · FIBRILACIÓN DE CELULOSA TwinLock 253 CD 25.3 mm Co-rotante",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

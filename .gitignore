@@ -1,0 +1,61 @@
+# ============================================
+# PAPEL -.gitignore
+# ============================================
+
+# ---- OS / Editor ----
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+imgui.ini
+
+# ---- Python ----
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# ---- Node / JS ----
+node_modules/
+dist/
+.nitro/
+.output/
+*.tsbuildinfo
+
+# ---- Grok / Vercel ----
+grok/.vercel/
+grok/.tanstack/
+grok/.grok/
+grok/.node_modules.lock
+grok/.parcel-cache/
+
+# ---- 3D / CAD binaries (regenerables) ----
+*.stl
+*.gcode
+*.step
+*.3mf
+*.obj
+*.fbx
+
+# ---- Build artifacts ----
+cnc-build/
+tiendas/
+
+# ---- Logs ----
+*.log
+opencode_startup.log
+opencode_web.log
+
+# ---- Browser / Testing ----
+.playwright-cli/
+brave-playwright-profile/
+test-results/
+playwright-report/
+
+# ---- Misc ----
+.cache/
+tmp/
+temp/
