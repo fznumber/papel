@@ -21,8 +21,10 @@ function rot2(p: THREE.Vector2, ang: number) {
 export function buildGearShape(
   teeth: number,
   module: number,
-  pressureAngle = 20,
+  pressureAngle = 25,
   backlash = 0.18,
+  squareBore?: number,
+  circularBore?: number,
 ): THREE.Shape {
   const pitchR = (teeth * module) / 2;
   const outR = pitchR + module;
@@ -33,7 +35,7 @@ export function buildGearShape(
   const pitchPt = involutePoint(baseR, tPitch);
   const pitchAng = Math.atan2(pitchPt.y, pitchPt.x);
   const halfTooth = Math.PI / teeth / 2 - backlash / (2 * pitchR);
-  const rotateToPitch = halfTooth - pitchAng;
+  const rotateToPitch = halfTooth + pitchAng;
 
   const pts: THREE.Vector2[] = [];
   const steps = 6;
@@ -74,24 +76,41 @@ export function buildGearShape(
   }
   shape.closePath();
 
-  const bore = Math.max(3.2, pitchR * 0.28);
-  const hole = new THREE.Path();
-  hole.absarc(0, 0, bore, 0, Math.PI * 2, true);
-  shape.holes.push(hole);
+  if (squareBore && squareBore > 0) {
+    const half = squareBore / 2;
+    const hole = new THREE.Path();
+    hole.moveTo(-half, -half);
+    hole.lineTo(half, -half);
+    hole.lineTo(half, half);
+    hole.lineTo(-half, half);
+    hole.closePath();
+    shape.holes.push(hole);
+  } else {
+    const bore = circularBore ? (circularBore / 2) : Math.max(3.2, pitchR * 0.28);
+    const hole = new THREE.Path();
+    hole.absarc(0, 0, bore, 0, Math.PI * 2, true);
+    shape.holes.push(hole);
+  }
   return shape;
 }
 
 const gearCache = new Map<string, THREE.ExtrudeGeometry>();
 
+export function clearGearCache() {
+  gearCache.clear();
+}
+
 export function getGearGeometry(
   teeth: number,
   module: number,
   thickness: number,
+  squareBore?: number,
+  circularBore?: number,
 ): THREE.ExtrudeGeometry {
-  const key = `${teeth}:${module}:${thickness}`;
+  const key = `${teeth}:${module}:${thickness}:${squareBore || 0}:${circularBore || 0}`;
   const hit = gearCache.get(key);
   if (hit) return hit;
-  const shape = buildGearShape(teeth, module);
+  const shape = buildGearShape(teeth, module, 20, 0.18, squareBore, circularBore);
   const geo = new THREE.ExtrudeGeometry(shape, {
     depth: thickness,
     bevelEnabled: true,

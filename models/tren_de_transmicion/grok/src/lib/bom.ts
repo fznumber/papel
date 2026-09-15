@@ -200,7 +200,7 @@ export const PART_LEGEND: { id: string; label: string }[] = [
   { id: "gear-input", label: "Z18" },
   { id: "compound", label: "Z54" },
   { id: "compound-pinion", label: "Z16" },
-  { id: "gear-out-steel", label: "Z32" },
+  { id: "gear-out-steel", label: "Z24" },
   { id: "adapter", label: "Adapt." },
   { id: "square-rod", label: "Tornillo" },
   { id: "thrust-51102", label: "51102" },

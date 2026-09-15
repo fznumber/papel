@@ -9,7 +9,7 @@ import {
   type PreId,
 } from "@/lib/design";
 
-const ALPHA = (20 * Math.PI) / 180;
+const ALPHA = (25 * Math.PI) / 180;
 
 export const TOOTH_MAT = {
   petg: {
@@ -34,7 +34,7 @@ export type MatId = keyof typeof TOOTH_MAT;
 export const KNEAD_PEAK = 1.6;
 
 function lewisY(z: number) {
-  return Math.PI * (0.154 - 0.912 / z);
+  return Math.PI * (0.170 - 0.950 / z);
 }
 
 function bendingMPa(ft: number, face: number, module: number, z: number) {

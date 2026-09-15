@@ -16,7 +16,7 @@ import {
 } from "@/lib/design";
 import { computeGearLoads, KNEAD_PEAK, type GearLoadResult } from "@/lib/gear-loads";
 import { PART_COLOR } from "@/lib/bom";
-import { createBilobeScrewGeometry, getGearGeometry } from "@/lib/gear-geometry";
+import { createBilobeScrewGeometry, getGearGeometry, clearGearCache } from "@/lib/gear-geometry";
 import { cn } from "@/lib/utils";
 import { useStudio } from "@/store/studio";
 
@@ -63,6 +63,8 @@ function GearMesh({
   roughness = 0.5,
   id,
   heat = 0,
+  squareBore,
+  circularBore,
 }: {
   teeth: number;
   module: number;
@@ -72,8 +74,13 @@ function GearMesh({
   roughness?: number;
   id: string;
   heat?: number;
+  squareBore?: number;
+  circularBore?: number;
 }) {
-  const geo = useMemo(() => getGearGeometry(teeth, module, face), [teeth, module, face]);
+  const geo = useMemo(
+    () => getGearGeometry(teeth, module, face, squareBore, circularBore),
+    [teeth, module, face, squareBore, circularBore],
+  );
   const sel = useSelect(id);
   return (
     <mesh geometry={geo} castShadow receiveShadow {...sel.bind}>
@@ -145,17 +152,9 @@ function AdapterShaft() {
   const c = sel.color(PART_COLOR.adapter!);
   return (
     <group {...sel.bind}>
-      <mesh position={[0, 0, -9]}>
-        <boxGeometry args={[SPEC.shaftSquare, SPEC.shaftSquare, 18]} />
+      <mesh position={[0, 0, -25]}>
+        <boxGeometry args={[SPEC.shaftSquare, SPEC.shaftSquare, 190]} />
         <meshStandardMaterial color={c} metalness={0.55} roughness={0.32} />
-      </mesh>
-      <mesh position={[0, 0, 8]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[7.5, 7.5, 10, 20]} />
-        <meshStandardMaterial color={c} metalness={0.6} roughness={0.28} />
-      </mesh>
-      <mesh position={[0, 0, 58]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[6, 6, 88, 18]} />
-        <meshStandardMaterial color={c} metalness={0.58} roughness={0.34} />
       </mesh>
     </group>
   );
@@ -321,6 +320,7 @@ function DriveTrain() {
               metalness={0.55}
               roughness={0.32}
               heat={showForces ? loads.heat["gear-out-L"] : 0}
+              squareBore={SPEC.shaftSquare}
             />
           </group>
           <AdapterShaft />
@@ -372,6 +372,7 @@ function DriveTrain() {
               metalness={0.5}
               roughness={0.34}
               heat={showForces ? loads.heat["gear-out-R"] : 0}
+              squareBore={SPEC.shaftSquare}
             />
           </group>
           <AdapterShaft />
@@ -403,6 +404,7 @@ function DriveTrain() {
           face={GEARS.crown.face}
           color={PART_COLOR["compound-crown"]!}
           heat={showForces ? loads.heat["compound-L"] : 0}
+          squareBore={SPEC.shaftSquare}
         />
         <group position={[0, 0, Z.outputGearL - Z.distribution]}>
           <GearMesh
@@ -414,10 +416,11 @@ function DriveTrain() {
             metalness={cmpSteel ? 0.7 : 0.18}
             roughness={cmpSteel ? 0.28 : 0.48}
             heat={showForces ? loads.heat["compound-L"] : 0}
+            squareBore={SPEC.shaftSquare}
           />
         </group>
-        <mesh rotation={[Math.PI / 2, 0, 0]} {...couplingSel.bind}>
-          <cylinderGeometry args={[4, 4, 70, 16]} />
+        <mesh {...couplingSel.bind}>
+          <boxGeometry args={[SPEC.shaftSquare, SPEC.shaftSquare, 70]} />
           <meshStandardMaterial
             color={couplingSel.color(PART_COLOR.coupling!)}
             metalness={0.55}
@@ -438,6 +441,7 @@ function DriveTrain() {
           face={GEARS.crown.face}
           color={PART_COLOR["compound-crown"]!}
           heat={showForces ? loads.heat["compound-R"] : 0}
+          squareBore={SPEC.shaftSquare}
         />
         <group position={[0, 0, Z.outputGearR - Z.distribution]}>
           <GearMesh
@@ -449,10 +453,11 @@ function DriveTrain() {
             metalness={cmpSteel ? 0.7 : 0.18}
             roughness={cmpSteel ? 0.28 : 0.48}
             heat={showForces ? loads.heat["compound-R"] : 0}
+            squareBore={SPEC.shaftSquare}
           />
         </group>
-        <mesh rotation={[Math.PI / 2, 0, 0]} {...couplingSel.bind}>
-          <cylinderGeometry args={[4, 4, 70, 16]} />
+        <mesh {...couplingSel.bind}>
+          <boxGeometry args={[SPEC.shaftSquare, SPEC.shaftSquare, 70]} />
           <meshStandardMaterial
             color={couplingSel.color(PART_COLOR.coupling!)}
             metalness={0.55}
@@ -475,6 +480,7 @@ function DriveTrain() {
           metalness={0.35}
           roughness={0.4}
           heat={showForces ? loads.heat["gear-input"] : 0}
+          circularBore={8}
         />
         <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 28]} {...couplingSel.bind}>
           <cylinderGeometry args={[4, 4, 56, 16]} />
@@ -698,7 +704,10 @@ function Scene() {
 
 export default function DriveCanvas() {
   const [ready, setReady] = useState(false);
-  useEffect(() => setReady(true), []);
+  useEffect(() => {
+    clearGearCache();
+    setReady(true);
+  }, []);
 
   if (!ready) {
     return (

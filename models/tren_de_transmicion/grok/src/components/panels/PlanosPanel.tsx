@@ -198,14 +198,14 @@ function AxialView() {
     { z: 0, w: 3, h: 44, y: (yL + yR) / 2, label: "placa" },
     { z: 8, w: 9, h: 22, y: yL, label: "51102" },
     { z: 22, w: 8, h: 22, y: yL, label: "6001" },
-    { z: 40, w: 16, h: 34, y: yL, label: "Z32 L" },
+    { z: 40, w: 16, h: 34, y: yL, label: "Z24 L" },
     { z: 104, w: 8, h: 22, y: yL, label: "6001" },
   ];
   const stagesR: { z: number; w: number; h: number; y: number; label: string }[] = [
     { z: -18, w: 18, h: 14, y: yR, label: "□" },
     { z: 8, w: 9, h: 22, y: yR, label: "51102" },
     { z: 22, w: 8, h: 22, y: yR, label: "6001" },
-    { z: 60, w: 16, h: 34, y: yR, label: "Z32 R" },
+    { z: 60, w: 16, h: 34, y: yR, label: "Z24 R" },
     { z: 104, w: 8, h: 22, y: yR, label: "6001" },
   ];
 
@@ -291,7 +291,7 @@ function AdapterView() {
     { len: 3, r: 9, label: "hombro" },
     { len: 10, r: 7.5, label: "Ø15 g6" },
     { len: 9, r: 6, label: "Ø12 6001" },
-    { len: 16, r: 6, label: "asiento Z32" },
+    { len: 16, r: 6, label: "asiento Z24" },
     { len: 20, r: 5.5, label: "cuerpo" },
     { len: 9, r: 6, label: "Ø12 6001" },
     { len: 8, r: 5, label: "cola" },
@@ -345,7 +345,7 @@ function AdapterView() {
         {ADAPTER.overall} mm · {ADAPTER.material}
       </text>
       <text x={200} y={142} textAnchor="middle" className="fill-muted-foreground" fontSize="9">
-        Dos piezas idénticas. Brida partida sobre el asiento Z32 para faseo.
+        Dos piezas idénticas. Brida partida sobre el asiento Z24 para faseo.
       </text>
     </svg>
   );

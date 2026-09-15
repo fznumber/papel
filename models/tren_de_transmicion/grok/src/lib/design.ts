@@ -24,7 +24,7 @@ export const GEARS = {
   input: { z: 18, m: MODULE, face: 14, material: "PETG-CF" as const, pd: 18 * MODULE },
   crown: { z: 54, m: MODULE, face: 14, material: "PETG-CF" as const, pd: 54 * MODULE },
   cmpPinion: { z: 16, m: MODULE, face: 16, material: "PETG-CF" as const, pd: 16 * MODULE },
-  output: { z: 32, m: MODULE, face: 16, material: "acero" as const, pd: 32 * MODULE },
+  output: { z: 24, m: MODULE, face: 16, material: "PETG-CF" as const, pd: 24 * MODULE },
 } as const;
 
 export const SPLIT_RATIO =
@@ -144,7 +144,7 @@ export const MOTORS: Record<MotorId, Motor> = {
 };
 
 export const PRE_REDUCTIONS: Record<PreId, PreReduction> = {
-  none: { id: "none", name: "Directo al split 6:1", ratio: 1, eta: 1, kind: "none" },
+  none: { id: "none", name: "Directo al split 4.5:1", ratio: 1, eta: 1, kind: "none" },
   belt3: { id: "belt3", name: "Correa HTD 5M 3:1", ratio: 3, eta: 0.95, kind: "belt" },
   plan5: { id: "plan5", name: "Planetario 5:1", ratio: 5, eta: 0.9, kind: "planetary" },
   plan10: { id: "plan10", name: "Planetario 10:1", ratio: 10, eta: 0.88, kind: "planetary" },
@@ -265,9 +265,9 @@ export function housingSize() {
 export const ADAPTER = {
   id: "TL-253-AD",
   material: "AISI 303",
-  overall: 112,
+  overall: 130,
   square: 6.35,
-  squareDepth: 18,
+  squareDepth: 130,
   squareTol: "H9",
   plateHole: 16.5,
   shoulderOd: 18,
@@ -283,11 +283,11 @@ export const ADAPTER = {
   clamp: "2× M4 ISO 4762 en brida partida",
   setScrew: "M4×6 prisionero sobre el cuadrado",
   pin: "Ø3 opcional, pasante, anti-extracción",
-  note: "L y R son idénticos. El desfase 90° se clampa contra el engranaje en el banco, no se fresa en el cuadrado.",
+  note: "Eje cuadrado 1/4\" (6.35mm) conecta tornillo extrusor con engranaje de salida. L y R son idénticos.",
 } as const;
 
 export const AXIAL_STACK = [
-  { z: -18, label: "Fondo hueco □", part: "adaptador" },
+  { z: -110, label: "Inicio eje cuadrado (tornillo)", part: "adaptador" },
   { z: 0, label: "Placa de reacción 3 mm", part: "thrust-plate" },
   { z: 8, label: "51102 empuje", part: "thrust-51102" },
   { z: 22, label: "6001 radial ante", part: "radial-6001" },
@@ -314,4 +314,4 @@ export function cadBundle() {
 }
 
 export const DEFAULT_MOTOR: MotorId = "nema23_2";
-export const DEFAULT_PRE: PreId = "none";
+export const DEFAULT_PRE: PreId = "belt3";
