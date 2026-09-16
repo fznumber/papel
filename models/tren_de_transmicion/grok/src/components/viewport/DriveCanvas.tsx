@@ -172,6 +172,7 @@ function DriveTrain() {
   const loadPct = useStudio((s) => s.loadPct);
   const cmpSteel = useStudio((s) => s.cmpSteel);
   const knead = useStudio((s) => s.knead);
+  const screwRpm = useStudio((s) => s.screwRpm);
   const setSelectedId = useStudio((s) => s.setSelectedId);
 
   const drive = computeDrive(motorId, preId);
@@ -193,7 +194,7 @@ function DriveTrain() {
   useFrame((_, dt) => {
     const d = Math.min(dt, 0.1);
     if (playing) {
-      const omegaOut = ((drive.screwRpmRated || 80) / 60) * Math.PI * 2;
+      const omegaOut = (screwRpm / 60) * Math.PI * 2;
       angle.current += omegaOut * 6 * d;
     }
     const a = angle.current;
@@ -301,14 +302,6 @@ function DriveTrain() {
             color={PART_COLOR["radial-6001"]!}
           />
         </group>
-        <group position={[0, 0, Z.rearRadial]} rotation={[Math.PI / 2, 0, 0]}>
-          <Bearing
-            inner={BEARINGS.radial.d}
-            outer={BEARINGS.radial.D}
-            width={BEARINGS.radial.B}
-            color={PART_COLOR["radial-6001"]!}
-          />
-        </group>
         <group ref={outLRef}>
           <group position={[0, 0, Z.outputGearL]}>
             <GearMesh
@@ -346,14 +339,6 @@ function DriveTrain() {
           <ThrustBearing />
         </group>
         <group position={[0, 0, Z.frontRadial]} rotation={[Math.PI / 2, 0, 0]}>
-          <Bearing
-            inner={BEARINGS.radial.d}
-            outer={BEARINGS.radial.D}
-            width={BEARINGS.radial.B}
-            color={PART_COLOR["radial-6001"]!}
-          />
-        </group>
-        <group position={[0, 0, Z.rearRadial]} rotation={[Math.PI / 2, 0, 0]}>
           <Bearing
             inner={BEARINGS.radial.d}
             outer={BEARINGS.radial.D}
@@ -480,10 +465,10 @@ function DriveTrain() {
           metalness={0.35}
           roughness={0.4}
           heat={showForces ? loads.heat["gear-input"] : 0}
-          circularBore={8}
+          squareBore={SPEC.shaftSquare}
         />
-        <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 28]} {...couplingSel.bind}>
-          <cylinderGeometry args={[4, 4, 56, 16]} />
+        <mesh position={[0, 0, 28]} {...couplingSel.bind}>
+          <boxGeometry args={[SPEC.shaftSquare, SPEC.shaftSquare, 56]} />
           <meshStandardMaterial
             color={couplingSel.color(PART_COLOR.coupling!)}
             metalness={0.55}
@@ -513,12 +498,22 @@ function DriveTrain() {
             />
           </mesh>
         )}
+        {/* Eje del motor (cilíndrico) */}
         <mesh position={[0, 0, -36]} rotation={[Math.PI / 2, 0, 0]}>
           <cylinderGeometry args={[4, 4, 18, 16]} />
           <meshStandardMaterial
             color={couplingSel.color(PART_COLOR.coupling!)}
             metalness={0.6}
             roughness={0.3}
+          />
+        </mesh>
+        {/* Acople motor → eje cuadrado */}
+        <mesh position={[0, 0, -45]}>
+          <boxGeometry args={[10, 10, 10]} />
+          <meshStandardMaterial
+            color={couplingSel.color(PART_COLOR.coupling!)}
+            metalness={0.55}
+            roughness={0.35}
           />
         </mesh>
       </group>

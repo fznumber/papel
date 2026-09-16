@@ -58,6 +58,8 @@ export function AppShell() {
   const loadPct = useStudio((s) => s.loadPct);
   const cmpSteel = useStudio((s) => s.cmpSteel);
   const knead = useStudio((s) => s.knead);
+  const screwRpm = useStudio((s) => s.screwRpm);
+  const setScrewRpm = useStudio((s) => s.setScrewRpm);
   const drive = computeDrive(motorId, preId);
   const loads =
     tab === "cargas"
@@ -114,7 +116,7 @@ export function AppShell() {
             </Suspense>
             <div className="pointer-events-none absolute top-3 left-3 flex flex-wrap gap-2">
               <span className="pointer-events-none rounded-md bg-background/80 px-2 py-1 font-mono text-[11px] tabular-nums text-muted-foreground">
-                {fmtRpm(drive.screwRpmRated)} · {fmtNm(drive.torqueRated)}
+                {fmtRpm(screwRpm)} · {fmtNm(drive.torqueRated)}
               </span>
               {loads ? (
                 <span
@@ -143,13 +145,15 @@ export function AppShell() {
                     key={item.id}
                     type="button"
                     onClick={() => setSelectedId(active ? null : target)}
-                    className={`inline-flex items-center gap-1.5 rounded-full bg-background/85 px-2 py-1 text-[10px] tracking-wide ${
-                      active ? "text-foreground" : "text-muted-foreground"
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[10px] tracking-wide transition-all ${
+                      active
+                        ? "bg-foreground text-background font-medium shadow-lg scale-105"
+                        : "bg-background/85 text-muted-foreground hover:bg-background/95"
                     }`}
-                    style={{ boxShadow: "var(--shadow-border)" }}
+                    style={active ? { boxShadow: `0 0 0 2px ${PART_COLOR[item.id]}` } : { boxShadow: "var(--shadow-border)" }}
                   >
                     <span
-                      className="size-2 shrink-0 rounded-full"
+                      className={`size-2 shrink-0 rounded-full ${active ? "animate-pulse" : ""}`}
                       style={{ background: PART_COLOR[item.id] }}
                     />
                     {item.label}
@@ -189,6 +193,18 @@ export function AppShell() {
                 value={[housingOpacity]}
                 onValueChange={(v) => setHousingOpacity(v[0] ?? 0.22)}
               />
+            </label>
+            <label className="flex min-w-[160px] flex-1 items-center gap-3 text-[11px] text-muted-foreground">
+              <Gauge className="size-3.5 shrink-0" />
+              RPM
+              <Slider
+                min={10}
+                max={300}
+                step={5}
+                value={[screwRpm]}
+                onValueChange={(v) => setScrewRpm(v[0] ?? 80)}
+              />
+              <span className="w-10 text-right tabular-nums">{screwRpm}</span>
             </label>
             <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
               <Switch checked={showScrews} onCheckedChange={setShowScrews} />

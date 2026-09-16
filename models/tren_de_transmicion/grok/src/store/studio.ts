@@ -24,6 +24,7 @@ interface StudioState {
   ramping: boolean;
   cmpSteel: boolean;
   knead: boolean;
+  screwRpm: number;
   setTab: (tab: StudioTab) => void;
   setPlaying: (v: boolean) => void;
   togglePlaying: () => void;
@@ -39,6 +40,7 @@ interface StudioState {
   setRamping: (v: boolean) => void;
   setCmpSteel: (v: boolean) => void;
   setKnead: (v: boolean) => void;
+  setScrewRpm: (v: number) => void;
 }
 
 export const useStudio = create<StudioState>()(
@@ -58,6 +60,7 @@ export const useStudio = create<StudioState>()(
       ramping: false,
       cmpSteel: false,
       knead: false,
+      screwRpm: 80,
       setTab: (tab) =>
         set({
           tab,
@@ -77,6 +80,7 @@ export const useStudio = create<StudioState>()(
       setRamping: (ramping) => set({ ramping }),
       setCmpSteel: (cmpSteel) => set({ cmpSteel }),
       setKnead: (knead) => set({ knead }),
+      setScrewRpm: (screwRpm) => set({ screwRpm }),
     }),
     {
       name: "twinlock-253",

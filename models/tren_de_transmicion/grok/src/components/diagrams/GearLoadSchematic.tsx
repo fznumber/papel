@@ -62,7 +62,7 @@ export function GearLoadSchematic({ loads }: { loads: GearLoadResult }) {
         {fmtN(loads.meshes[3]!.Ft)}
       </text>
       <text x={200} y={16} textAnchor="middle" className="fill-muted-foreground" fontSize="10">
-        Ft tangencial · α 20° · color = factor de seguridad
+        Ft tangencial · α 25° · color = factor de seguridad
       </text>
     </svg>
   );

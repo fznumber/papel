@@ -61,7 +61,7 @@ export function LoadsPanel() {
         </p>
         <h2 className="text-xl font-medium tracking-tight">Carga en los dientes</h2>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          Flexión Lewis y Hertz en los cuatro engranes, α = 20°. PETG-CF a {TOOTH_MAT.petg.sigmaB} MPa
+          Flexión Lewis y Hertz en los cuatro engranes, α = 25°. PETG-CF a {TOOTH_MAT.petg.sigmaB} MPa
           de raíz; acero a {TOOTH_MAT.steel.sigmaB} MPa. Conservador (recto, no herringbone).
         </p>
       </header>

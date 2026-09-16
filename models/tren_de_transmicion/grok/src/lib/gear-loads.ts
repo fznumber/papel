@@ -1,4 +1,4 @@
-/** Mesh forces and tooth stress for TwinLock-253 (spur, α = 20°). Units: mm, N, N·m, MPa. */
+/** Mesh forces and tooth stress for TwinLock-253 (spur, α = 25°). Units: mm, N, N·m, MPa. */
 
 import {
   GEARS,

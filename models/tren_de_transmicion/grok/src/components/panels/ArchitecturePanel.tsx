@@ -27,7 +27,7 @@ export function ArchitecturePanel() {
         <Spec k="Relación split" v={`${SPLIT_RATIO.toFixed(0)}:1`} />
         <Spec k="Relación entre tornillos" v="1:1 estricta" />
         <Spec k="Sentido" v="Co-rotante" />
-        <Spec k="Módulo" v={`${GEARS.output.m} mm · evolvente 20°`} />
+        <Spec k="Módulo" v={`${GEARS.output.m} mm · evolvente 25°`} />
         <Spec k="Holgura FDM" v={`+${fmtMm(SPEC.backlashAllowance)} en CD`} />
       </dl>
 

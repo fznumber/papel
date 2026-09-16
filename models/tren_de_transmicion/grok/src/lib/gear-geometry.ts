@@ -110,7 +110,7 @@ export function getGearGeometry(
   const key = `${teeth}:${module}:${thickness}:${squareBore || 0}:${circularBore || 0}`;
   const hit = gearCache.get(key);
   if (hit) return hit;
-  const shape = buildGearShape(teeth, module, 20, 0.18, squareBore, circularBore);
+  const shape = buildGearShape(teeth, module, 25, 0.18, squareBore, circularBore);
   const geo = new THREE.ExtrudeGeometry(shape, {
     depth: thickness,
     bevelEnabled: true,

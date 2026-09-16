@@ -52,7 +52,7 @@ export function PlanosPanel() {
             <Row k="CD tornillos" v={fmtMm(SPEC.centerDistance)} n="Acero. No FDM." />
             <Row k="□ eje" v={`${fmtMm(ADAPTER.square)} ${ADAPTER.squareTol}`} n="Hueco 18 mm" />
             <Row k="Fase" v="90° ±0.5°" n="Clamp en banco" />
-            <Row k="Módulo / α" v={`${GEARS.output.m} / 20°`} n="Evolvente" />
+            <Row k="Módulo / α" v={`${GEARS.output.m} / 25°`} n="Evolvente" />
             <Row k="Backlash FDM" v={`+${fmtMm(SPEC.backlashAllowance)}`} n="Solo centros impresos" />
             <Row k="51102" v={`${BEARINGS.thrust.d}×${BEARINGS.thrust.D}×${BEARINGS.thrust.T}`} n="Contra placa, no PETG" />
             <Row k="6001-2Z" v={`${BEARINGS.radial.d}×${BEARINGS.radial.D}×${BEARINGS.radial.B}`} n="4×, mitad locadora" />

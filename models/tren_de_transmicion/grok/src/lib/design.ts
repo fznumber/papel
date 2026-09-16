@@ -59,7 +59,6 @@ export const Z = {
   outputGearL: 40,
   outputGearR: 60,
   distribution: 84,
-  rearRadial: 104,
   housingEnd: 120,
   reducer: 148,
   motor: 188,
@@ -293,7 +292,6 @@ export const AXIAL_STACK = [
   { z: 22, label: "6001 radial ante", part: "radial-6001" },
   { z: 40, label: "Engranaje salida L", part: "gear-out-steel" },
   { z: 60, label: "Engranaje salida R", part: "gear-out-steel" },
-  { z: 104, label: "6001 radial post", part: "radial-6001" },
   { z: 120, label: "Cierre caja", part: "housing" },
 ] as const;
 
