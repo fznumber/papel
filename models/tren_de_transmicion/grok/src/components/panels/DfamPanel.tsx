@@ -2,16 +2,6 @@ import { GEARS, SPEC } from "@/lib/design";
 
 const PRINTS = [
   {
-    file: "housing_A.stl",
-    role: "Mitad locadora",
-    set: "6 paredes, 40 % gyroid, bores −0.2 mm",
-  },
-  {
-    file: "housing_B.stl",
-    role: "Tapa holgada",
-    set: "No localiza rodamientos. Solo cubre.",
-  },
-  {
     file: "pinion_Z18.stl",
     role: "Piñón distribuidor",
     set: "Eje vertical, 100 % infill, herringbone",
@@ -37,9 +27,9 @@ export function DfamPanel() {
         </p>
         <h2 className="text-xl font-medium tracking-tight">DFAM para PETG-CF</h2>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          El plástico se ablanda a ~{SPEC.petgSofteningC} °C. El barril va aislado de la caja
-          (junta 3 mm + placa metálica). Los engranajes de salida, a módulo {GEARS.output.m} y{" "}
-          {GEARS.output.face} mm de cara, se especifican en acero para el par de régimen.
+          El plástico se ablanda a ~{SPEC.petgSofteningC} °C. Los engranajes de salida, a módulo{" "}
+          {GEARS.output.m} y {GEARS.output.face} mm de cara, se especifican en acero para el par de
+          régimen.
         </p>
       </header>
 
@@ -70,11 +60,10 @@ export function DfamPanel() {
       <section className="space-y-2">
         <h3 className="text-sm font-medium">Secuencia de montaje</h3>
         <ol className="list-decimal space-y-1.5 pl-4 text-sm leading-relaxed text-muted-foreground">
-          <li>Prensar 6001 en housing A. Calentar insertos.</li>
           <li>Montar adaptadores, collares y 51102 contra la placa de reacción.</li>
           <li>Apilar engranajes de salida en planos z=40 y z=60. Abrazadera suelta.</li>
           <li>Engranar compuestos y piñón. Verificar dos caminos, mismo sentido.</li>
-          <li>Tapa B. Motor y acoplamiento.</li>
+          <li>Motor y acoplamiento.</li>
           <li>Insertar tornillos, barrer hasta 90°, apretar fase. Engrasar EP2.</li>
         </ol>
       </section>

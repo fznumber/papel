@@ -1,6 +1,5 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import {
-  Box,
   Download,
   Gauge,
   Layers,
@@ -14,6 +13,7 @@ import { DfamPanel } from "@/components/panels/DfamPanel";
 import { LoadsPanel } from "@/components/panels/LoadsPanel";
 import { MotorPanel } from "@/components/panels/MotorPanel";
 import { PlanosPanel } from "@/components/panels/PlanosPanel";
+import { PartsSelector } from "@/components/openscad/PartsSelector";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -24,6 +24,7 @@ import { SPEC, SPLIT_RATIO, cadBundle, computeDrive } from "@/lib/design";
 import { KNEAD_PEAK, computeGearLoads } from "@/lib/gear-loads";
 import { fmtNm, fmtRpm } from "@/lib/utils";
 import { useStudio, type StudioTab } from "@/store/studio";
+import { downloadOpenSCAD } from "@/openscad/export";
 
 const DriveCanvas = lazy(() => import("@/components/viewport/DriveCanvas"));
 
@@ -47,9 +48,8 @@ export function AppShell() {
   const setPlaying = useStudio((s) => s.setPlaying);
   const explode = useStudio((s) => s.explode);
   const setExplode = useStudio((s) => s.setExplode);
-  const housingOpacity = useStudio((s) => s.housingOpacity);
-  const setHousingOpacity = useStudio((s) => s.setHousingOpacity);
   const showScrews = useStudio((s) => s.showScrews);
+  const [showPartsSelector, setShowPartsSelector] = useState(false);
   const setShowScrews = useStudio((s) => s.setShowScrews);
   const showDimensions = useStudio((s) => s.showDimensions);
   const setShowDimensions = useStudio((s) => s.setShowDimensions);
@@ -98,6 +98,10 @@ export function AppShell() {
           <Button variant="outline" size="sm" onClick={downloadCad} className="hidden sm:inline-flex">
             <Download />
             CAD JSON
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowPartsSelector(true)} className="hidden sm:inline-flex">
+            <Download />
+            OpenSCAD
           </Button>
         </div>
       </header>
@@ -183,17 +187,6 @@ export function AppShell() {
                 onValueChange={(v) => setExplode(v[0] ?? 0)}
               />
             </label>
-            <label className="hidden min-w-[120px] flex-1 items-center gap-3 text-[11px] text-muted-foreground sm:flex">
-              <Box className="size-3.5 shrink-0" />
-              Caja
-              <Slider
-                min={0}
-                max={0.85}
-                step={0.01}
-                value={[housingOpacity]}
-                onValueChange={(v) => setHousingOpacity(v[0] ?? 0.22)}
-              />
-            </label>
             <label className="flex min-w-[160px] flex-1 items-center gap-3 text-[11px] text-muted-foreground">
               <Gauge className="size-3.5 shrink-0" />
               RPM
@@ -264,6 +257,7 @@ export function AppShell() {
           </footer>
         </aside>
       </div>
+      <PartsSelector open={showPartsSelector} onOpenChange={setShowPartsSelector} />
     </div>
   );
 }

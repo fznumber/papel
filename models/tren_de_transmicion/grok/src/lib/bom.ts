@@ -101,15 +101,6 @@ export const BOM: BomItem[] = [
     critical: true,
   },
   {
-    id: "housing",
-    qty: 1,
-    kind: "chasis",
-    name: "Caja clamshell",
-    spec: "PETG-CF, dos mitades, inserto M3/M4",
-    source: "FDM, boquilla 0.4, 6 paredes",
-    note: "Una sola mitad localiza los rodamientos (no hiperestático).",
-  },
-  {
     id: "motor-nema",
     qty: 1,
     kind: "motor",
@@ -187,7 +178,6 @@ export const PART_COLOR: Record<string, string> = {
   "thrust-51102": "#b4554a",
   "radial-6001": "#4e7a96",
   "thrust-plate": "#d5dbe1",
-  housing: "#4e6a5c",
   "motor-nema": "#6a6480",
   "motor-775": "#4d5c68",
   coupling: "#8a7a55",

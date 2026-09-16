@@ -7,12 +7,10 @@ import {
   POS,
   SPEC,
   Z,
-  housingSize,
 } from "@/lib/design";
 import { fmtMm } from "@/lib/utils";
 
 export function PlanosPanel() {
-  const box = housingSize();
   return (
     <div className="space-y-6">
       <header className="space-y-2">
@@ -21,8 +19,8 @@ export function PlanosPanel() {
         </p>
         <h2 className="text-xl font-medium tracking-tight">{SPEC.name}</h2>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          Cotas bloqueadas del tornillo y del tren. El adaptador se tuerce en acero; la caja se
-          imprime. El 90° no se fresa en el cuadrado.
+          Cotas bloqueadas del tornillo y del tren. El adaptador se tuerce en acero. El 90° no se
+          fresa en el cuadrado.
         </p>
       </header>
 
@@ -55,8 +53,7 @@ export function PlanosPanel() {
             <Row k="Módulo / α" v={`${GEARS.output.m} / 25°`} n="Evolvente" />
             <Row k="Backlash FDM" v={`+${fmtMm(SPEC.backlashAllowance)}`} n="Solo centros impresos" />
             <Row k="51102" v={`${BEARINGS.thrust.d}×${BEARINGS.thrust.D}×${BEARINGS.thrust.T}`} n="Contra placa, no PETG" />
-            <Row k="6001-2Z" v={`${BEARINGS.radial.d}×${BEARINGS.radial.D}×${BEARINGS.radial.B}`} n="4×, mitad locadora" />
-            <Row k="Caja" v={`${box.width.toFixed(0)}×${box.height.toFixed(0)}×${box.depth.toFixed(0)}`} n="PETG-CF clamshell" />
+            <Row k="6001-2Z" v={`${BEARINGS.radial.d}×${BEARINGS.radial.D}×${BEARINGS.radial.B}`} n="2×, mitad locadora" />
           </tbody>
         </table>
       </section>

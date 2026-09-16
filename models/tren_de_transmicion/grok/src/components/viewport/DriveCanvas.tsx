@@ -11,7 +11,6 @@ import {
   SPEC,
   Z,
   computeDrive,
-  housingSize,
   meshAngle,
 } from "@/lib/design";
 import { computeGearLoads, KNEAD_PEAK, type GearLoadResult } from "@/lib/gear-loads";
@@ -162,7 +161,6 @@ function AdapterShaft() {
 
 function DriveTrain() {
   const explode = useStudio((s) => s.explode);
-  const housingOpacity = useStudio((s) => s.housingOpacity);
   const showScrews = useStudio((s) => s.showScrews);
   const showForces = useStudio((s) => s.showForces);
   const showDimensions = useStudio((s) => s.showDimensions);
@@ -226,7 +224,6 @@ function DriveTrain() {
   });
 
   const e = explode;
-  const hs = housingSize();
   const screwGeo = useMemo(
     () =>
       createBilobeScrewGeometry({
@@ -238,7 +235,6 @@ function DriveTrain() {
     [],
   );
 
-  const housingSel = useSelect("housing");
   const plateSel = useSelect("thrust-plate");
   const motorSel = useSelect(motorId === "dc775_12" ? "motor-775" : "motor-nema");
   const screwSel = useSelect("square-rod");
@@ -249,36 +245,6 @@ function DriveTrain() {
       position={[0, 8, -Z.distribution / 2]}
       onClick={() => setSelectedId(null)}
     >
-      {/* Housing clamshell */}
-      <mesh
-        position={[0, hs.height * 0.28 + e * 42, Z.distribution / 2]}
-        {...housingSel.bind}
-      >
-        <boxGeometry args={[hs.width * 0.92, 10, hs.depth * 0.72]} />
-        <meshStandardMaterial
-          color={housingSel.color(PART_COLOR.housing!)}
-          transparent
-          opacity={Math.max(housingOpacity, 0.18)}
-          roughness={0.62}
-          metalness={0.08}
-          depthWrite={housingOpacity > 0.6}
-        />
-      </mesh>
-      <mesh
-        position={[0, -hs.height * 0.22 - e * 28, Z.distribution / 2]}
-        {...housingSel.bind}
-      >
-        <boxGeometry args={[hs.width * 0.92, 12, hs.depth * 0.72]} />
-        <meshStandardMaterial
-          color={housingSel.color(PART_COLOR.housing!)}
-          transparent
-          opacity={Math.max(housingOpacity, 0.22)}
-          roughness={0.62}
-          metalness={0.08}
-          depthWrite={housingOpacity > 0.6}
-        />
-      </mesh>
-
       {/* Thrust plate */}
       <mesh position={[0, 0, Z.thrustPlate - e * 18]} {...plateSel.bind}>
         <boxGeometry args={[72, 48, 3]} />
@@ -721,7 +687,7 @@ export default function DriveCanvas() {
         shadows="basic"
         gl={{ antialias: true, alpha: false }}
         onCreated={({ gl }) => {
-          gl.setClearColor("#0b0c0e");
+          gl.setClearColor("#e5e5e5");
           gl.shadowMap.type = THREE.PCFShadowMap;
         }}
       >
