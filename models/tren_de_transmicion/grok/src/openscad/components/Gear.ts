@@ -4,6 +4,8 @@
  */
 
 import { PARAMS } from "../utils/parameters";
+import { buildGearShape } from "../../lib/gear-geometry";
+import { ANGLES, meshAngle } from "../../lib/design";
 
 interface GearProps {
   teeth: number;
@@ -12,6 +14,7 @@ interface GearProps {
   squareBore?: number;
   circularBore?: number;
   position?: [number, number, number];
+  rotation?: [number, number, number];
   name?: string;
 }
 
@@ -25,31 +28,34 @@ export function generateGear({
   squareBore,
   circularBore = 0,
   position = [0, 0, 0],
+  rotation = [0, 0, 0],
   name = "gear",
 }: GearProps): string {
-  const circularPitch = (Math.PI * module).toFixed(4);
-  const bore = squareBore ? 0 : circularBore;
+  // Use exactly the same shape generator as the 3D visualizer
+  const shape = buildGearShape(teeth, module, PARAMS.PRESSURE_ANGLE, PARAMS.BACKLASH, 0, 0);
+  
+  // Extract points (ignoring holes since we will cut them using OpenSCAD difference)
+  const points = shape.getPoints();
+  const pointsStr = points.map(p => `[${p.x.toFixed(4)}, ${p.y.toFixed(4)}]`).join(", ");
 
   let code = `
-// ${name} - Z${teeth} m${module}
+// ${name} - Z${teeth} m${module} (Custom Polygon Extrusion)
 translate([${position[0]}, ${position[1]}, ${position[2]}])
-  difference() {
-    gear(
-      number_of_teeth = ${teeth},
-      circular_pitch = ${circularPitch},
-      pressure_angle = ${PARAMS.PRESSURE_ANGLE},
-      gear_thickness = ${face},
-      rim_thickness = ${face},
-      hub_thickness = 0,
-      bore_diameter = ${bore},
-      backlash = ${PARAMS.BACKLASH}
-    );`;
+  rotate([${rotation[0]}, ${rotation[1]}, ${rotation[2]}])
+    difference() {
+      translate([0, 0, -${face / 2}])
+        linear_extrude(height = ${face}, center = false, convexity = 10)
+          polygon(points=[${pointsStr}]);`;
 
   if (squareBore) {
     const size = squareBore + 0.2; // Tolerancia para impresión 3D
     code += `
     // Hueco cuadrado ${squareBore}mm
     cube([${size}, ${size}, ${face + 2}], center = true);`;
+  } else if (circularBore > 0) {
+    code += `
+    // Hueco circular
+    cylinder(d = ${circularBore}, h = ${face + 2}, center = true, $fn = 50);`;
   }
 
   code += `
@@ -65,6 +71,15 @@ export function generateAllGears(): string {
   const { GEARS } = PARAMS;
   const { XY, POSITIONS } = PARAMS;
 
+  // Calcular rotaciones para el mallado correcto (igual que la animación)
+  const rad2deg = 180 / Math.PI;
+  const a = 0;
+  const inRot = a;
+  const cmpLRot = meshAngle(a, GEARS.input.z, GEARS.crown.z, ANGLES.inToCmpL);
+  const cmpRRot = meshAngle(a, GEARS.input.z, GEARS.crown.z, ANGLES.inToCmpR);
+  const outLRot = meshAngle(cmpLRot, GEARS.cmpPinion.z, GEARS.output.z, ANGLES.cmpLToOutL);
+  const outRRot = meshAngle(cmpRRot, GEARS.cmpPinion.z, GEARS.output.z, ANGLES.cmpRToOutR) + Math.PI / 2;
+
   let code = `
 // ============================================
 // ENGRANAJES
@@ -77,6 +92,7 @@ export function generateAllGears(): string {
     face: GEARS.input.face,
     squareBore: PARAMS.SHAFT_SQUARE,
     position: [0, XY.inputY, POSITIONS.distribution],
+    rotation: [0, 0, inRot * rad2deg],
     name: "Engranaje Entrada Z18",
   });
 
@@ -87,6 +103,7 @@ export function generateAllGears(): string {
     face: GEARS.crown.face,
     squareBore: PARAMS.SHAFT_SQUARE,
     position: [XY.cmpL, 0, POSITIONS.distribution],
+    rotation: [0, 0, cmpLRot * rad2deg],
     name: "Corona Compound L Z54",
   });
 
@@ -97,27 +114,30 @@ export function generateAllGears(): string {
     face: GEARS.crown.face,
     squareBore: PARAMS.SHAFT_SQUARE,
     position: [XY.cmpR, 0, POSITIONS.distribution],
+    rotation: [0, 0, cmpRRot * rad2deg],
     name: "Corona Compound R Z54",
   });
 
   // Z10 - Piñón compound L
   code += generateGear({
-    teeth: GEARS.pinion.z,
-    module: GEARS.pinion.m,
-    face: GEARS.pinion.face,
+    teeth: GEARS.cmpPinion.z,
+    module: GEARS.cmpPinion.m,
+    face: GEARS.cmpPinion.face,
     squareBore: PARAMS.SHAFT_SQUARE,
     position: [XY.cmpL, 0, POSITIONS.outputGearL],
-    name: "Piñón Compound L Z10",
+    rotation: [0, 0, cmpLRot * rad2deg],
+    name: "Piñón Compound L Z16",
   });
 
   // Z10 - Piñón compound R
   code += generateGear({
-    teeth: GEARS.pinion.z,
-    module: GEARS.pinion.m,
-    face: GEARS.pinion.face,
+    teeth: GEARS.cmpPinion.z,
+    module: GEARS.cmpPinion.m,
+    face: GEARS.cmpPinion.face,
     squareBore: PARAMS.SHAFT_SQUARE,
     position: [XY.cmpR, 0, POSITIONS.outputGearR],
-    name: "Piñón Compound R Z10",
+    rotation: [0, 0, cmpRRot * rad2deg],
+    name: "Piñón Compound R Z16",
   });
 
   // Z20 - Engranaje salida L
@@ -127,7 +147,8 @@ export function generateAllGears(): string {
     face: GEARS.output.face,
     squareBore: PARAMS.SHAFT_SQUARE,
     position: [XY.outL, 0, POSITIONS.outputGearL],
-    name: "Engranaje Salida L Z20",
+    rotation: [0, 0, outLRot * rad2deg],
+    name: "Engranaje Salida L Z24",
   });
 
   // Z20 - Engranaje salida R
@@ -137,7 +158,8 @@ export function generateAllGears(): string {
     face: GEARS.output.face,
     squareBore: PARAMS.SHAFT_SQUARE,
     position: [XY.outR, 0, POSITIONS.outputGearR],
-    name: "Engranaje Salida R Z20",
+    rotation: [0, 0, outRRot * rad2deg],
+    name: "Engranaje Salida R Z24",
   });
 
   return code;

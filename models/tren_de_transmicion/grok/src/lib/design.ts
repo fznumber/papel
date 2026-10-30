@@ -31,10 +31,10 @@ export const SPLIT_RATIO =
   (GEARS.crown.z / GEARS.input.z) * (GEARS.output.z / GEARS.cmpPinion.z); // 6
 
 export const SCREW = {
-  doOuter: 30.36,
-  diInner: 20.24,
+  doOuter: 25.3,
+  diInner: 15.7,
   pitch: 32,
-  length: 110,
+  length: 518,
 };
 
 const halfCd = SPEC.centerDistance / 2;

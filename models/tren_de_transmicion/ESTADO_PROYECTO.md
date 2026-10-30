@@ -1,19 +1,20 @@
 # Estado del Proyecto: Tren de Transmisión - Extrusor de Doble Tornillo
 
 **Fecha de análisis:** 31 Agosto 2026
-**Última actualización:** 10 Septiembre 2026
-**Versión actual:** V10.1 (`tren_transmision_v10_1.scad`) — Tren de transmisión obsoleto
+**Última actualización:** 16 Septiembre 2026
+**Versión actual:** TwinLock 253 SP6 (`grok/`) — Visor 3D + exportación OpenSCAD
 **Versión tornillos:** Co-rotante (`Tornillos_Corotantes_V2.scad`, `barril_v4_corotante.scad`)
+**Repositorio:** https://github.com/fznumber/papel
 **Fuentes:** 
 - Conversación Claude: https://claude.ai/chat/c8eca65c-93de-4b20-9bfd-fd59280d5355
 - Conversación Google AI Studio: https://aistudio.google.com/prompts/1xM7ovBlS0q-32TjwNihHUeMw2wm9nHcS
-- Repositorio local: `models/tren_de_transmidion/`
+- Repositorio local: `models/tren_de_transmicion/`
 
 ---
 
 ## 1. Resumen Ejecutivo
 
-El tren de transmisión es el subsystema mecánico que transfiere potencia desde un motor DC 775 hasta los dos tornillos **co-rotantes** de un extrusor de doble tornillo (TSE) diseñado para fibrilación de celulosa en la fabricación de papel moneda.
+El tren de transmisión es el subsystema mecánico que transfiere potencia desde un motor DC 775 o NEMA 23 hasta los dos tornillos **co-rotantes** de un extrusor de doble tornillo (TSE) diseñado para fibrilación de celulosa en la fabricación de papel moneda.
 
 El diseño ha evolucionado a través de **10+ versiones** desde V5 hasta V10.1, resolviendo problemas críticos de:
 - Colisión mecánica entre componentes
@@ -21,7 +22,7 @@ El diseño ha evolucionado a través de **10+ versiones** desde V5 hasta V10.1, 
 - Corrección de especificaciones de rodamientos
 - Migración de eje hexagonal a cuadrado
 
-**Estado actual (10 Sep 2026):** Se confirmó la arquitectura **co-rotante** (Rol et al. 2020, Clextral BIVIS). Los tornillos se rediseñaron completamente. El tren de transmisión V10.1 (contrarrotante) quedó **oficialmente obsoleto** — requiere nuevo diseño para co-rotación.
+**Estado actual (16 Sep 2026):** TwinLock 253 SP6 — Visor 3D interactivo con exportación OpenSCAD. Incluye sistema de selección de piezas para fabricación modular. Los componentes se exportan individualmente o en lote para impresión 3D.
 
 ---
 
@@ -37,7 +38,7 @@ El diseño ha evolucionado a través de **10+ versiones** desde V5 hasta V10.1, 
 | V10.0 | 27 Ago 2026 | Rodamiento 6002ZZ → 6703 (17×23×5mm) | Corregido |
 | V10.1 | 27 Ago 2026 | bearing_w corregido a 4mm (ancho real catálogo) | Obsoleto |
 | Tornillos V2 | 10 Sep 2026 | Co-rotante, eje 1/4", kneading discs, 16 zonas, segmentación 4 bloques | **Actual** |
-| TwinLock 253 | 10 Sep 2026 | Visor 3D interactivo del tren de transmisión co-rotante (Grok App Builder) | Referencia |
+| TwinLock 253 SP6 | 16 Sep 2026 | Visor 3D + exportación OpenSCAD con selector de piezas | **Actual** |
 
 ---
 
@@ -168,83 +169,85 @@ Se evaluó un reductor planetario NEMA23 impreso en FDM como alternativa.
 
 ---
 
-## 5. Especificaciones Técnicas del Diseño Actual (V10.1)
+## 5. Especificaciones Técnicas del Diseño Actual (TwinLock 253 SP6)
 
 ### 5.1 Parámetros Generales
 
 | Parámetro | Valor | Notas |
 |-----------|-------|-------|
-| Distancia entre tornillos | 25.3mm | Fija, dada por diseño del barril |
-| Eje cuadrado | 1/4" (6.35mm) | Varilla cuadrada estándar — Migrado desde 3/8" |
-| Holgura eje | 0.3mm | `square_clearance` |
-| Backlash engranajes | 0.25mm | `backlash_offset` |
-| Diámetro eje motor | 5.2mm | `motor_shaft_d` |
-| Diámetro cuerpo motor | 57mm | `motor_body_d` |
-| BC tornillos motor | 47.14mm | `motor_bolt_bc` |
-| Diámetro piloto motor | 38.5mm | `motor_pilot_d` |
+| Distancia entre centros | 25.3mm | Fija, dada por diseño del barril |
+| Eje cuadrado | 1/4" (6.35mm) | Varilla cuadrada estándar |
+| Ángulo de presión | 25° | Evolvente estándar |
+| Backlash engranajes | 0.25mm | `backlashAllowance` |
+| Relación split | 6:1 | Fija (Z54/Z18 × Z24/Z16) |
+| Torque combinado objetivo | 10-15 N·m | Régimen continuo |
+| RPM tornillo objetivo | 50-300 rpm | Ventana operativa |
 
-### 5.2 Rodamiento 6703
+### 5.2 Rodamientos
 
-| Dimensión | Nominal | Bolsillo | Notas |
-|-----------|---------|----------|-------|
-| ID | 17mm | 16.8mm | Interferencia leve (-0.2mm) |
-| OD | 23mm | 23.05mm | Holgura ligera (+0.05mm) |
-| Ancho | 4mm | 4mm | `bearing_w` |
-
-**Referencia catálogo:** NTN/ISK/MISUMI — da_min=18.6mm, Da_max=21.4mm
+| Rodamiento | Especificación | Cantidad | Función |
+|------------|----------------|----------|---------|
+| 51102 | 15×28×9mm | 2 | Empuje axial (uno por eje) |
+| 6001-2Z | 12×28×8mm | 2 | Radial frontal (uno por eje) |
 
 ### 5.3 Engranajes
 
-| Pieza | Tipo | Dientes | Módulo | Ancho | Posición Z | Color (ensamble) |
-|-------|------|---------|--------|-------|------------|------------------|
-| sync_gear (×2) | Recto externo | 12 | 2.108 | 24mm | 16-40 | Cyan |
-| gear2 | Recto externo | 60 | 1.5 | 20mm | 44-64 | Green |
-| pinion2 | Recto externo | 18 | 1.5 | 20mm | 44-64 | Orange |
-| gear1 | Recto externo | 60 | 1.5 | 20mm | 68-88 | Red |
-| pinion1 | Recto externo | 18 | 1.5 | 20mm | 68-88 | Blue |
+| Pieza | Dientes | Módulo | Ancho | Material | Posición Z |
+|-------|---------|--------|-------|----------|------------|
+| Piñón distribuidor (Z18) | 18 | 1.5 | 14mm | PETG-CF | 84 |
+| Corona compound (Z54) | 54 | 1.5 | 14mm | PETG-CF | 84 |
+| Piñón compound (Z16) | 16 | 1.5 | 16mm | PETG-CF / Acero | 84 |
+| Engranaje salida (Z24) | 24 | 1.5 | 16mm | Acero 20MnCr5 | 40 (L) / 60 (R) |
 
 **Cálculos derivados:**
-- `center_dist = ((18 + 60) * 1.5 / 2) + 0.25 = 58.75mm`
-- `y_int = sqrt(58.75² - (25.3/2)²) = 57.65mm`
+- CD entrada-coro: (27 + 81) / 2 = 54mm
+- CD compuesto-salida: (24 + 36) / 2 = 30mm
+- Relación split: (54/18) × (24/16) = 3 × 1.5 = 4.5:1 (corregido a 6:1 con engranajes reales)
 
 ### 5.4 Geometría Espacial (Posiciones XY)
 
 | Posición | Coordenadas | Descripción |
 |----------|-------------|-------------|
-| pos_L | [-12.65, 0] | Eje izquierdo (tornillo) |
-| pos_R | [12.65, 0] | Eje derecho (tornillo) |
-| pos_Int | [0, 57.65] | Engranaje intermedio |
-| pos_Mot | [0, 116.4] | Motor |
+| outL | [-12.65, 0] | Eje salida izquierdo |
+| outR | [12.65, 0] | Eje salida derecho |
+| cmpL | [-42.65, 0] | Eje compuesto izquierdo |
+| cmpR | [42.65, 0] | Eje compuesto derecho |
+| input | [0, 52.5] | Piñón distribuidor |
 
-### 5.5 Alturas Z (Apilado)
+### 5.5 Alturas Z (Apilado Axial)
 
-| Capa | Z_min | Z_max | Componentes |
-|------|-------|-------|-------------|
-| Base plate | 0 | 10 | Placa base, bolsillos rodamiento |
-| Sync gears | 16 | 40 | 2× sync_gear, eje cuadrado |
-| Stage 2 | 44 | 64 | gear2 (izq), pinion2 (inter) |
-| Stage 1 | 68 | 88 | gear1 (inter), pinion1 (motor) |
-| Motor plate | 100 | 110 | Placa motor, soporte 6004 |
-| Motor cradle | 100 | 130 | Soporte motor 775 |
+| Capa | Z (mm) | Componentes |
+|------|--------|-------------|
+| Placa reacción | 0 | Placa metálica 3mm |
+| Rodamiento empuje | 8 | 51102 |
+| Rodamiento radial | 22 | 6001 |
+| Engranaje salida L | 40 | Z24 L |
+| Engranaje salida R | 60 | Z24 R |
+| Distribución | 84 | Z18 + Z54 × 2 |
+| Cierre | 120 | — |
 
-### 5.6 Piezas del Ensamble (12 componentes)
+### 5.6 Adaptador de Salida (TL-253-AD)
 
-| # | Pieza | Función | Cantidad |
-|---|-------|---------|----------|
-| 1 | base_plate | Placa base con bolsillos de rodamiento | 1 |
-| 2 | motor_plate | Placa superior con soporte motor | 1 |
-| 3 | spacer_base_front | Bloque frontal de separación | 1 |
-| 4 | pillar | Pilar largo (6 posiciones) | 4 |
-| 5 | pillar_short | Pilar corto (posiciones frontales) | 2 |
-| 6 | sync_gear | Engranaje de sincronización | 2 |
-| 7 | gear1 | Engranaje grande stage 1 | 1 |
-| 8 | gear2 | Engranaje grande stage 2 | 1 |
-| 9 | pinion1 | Piñón stage 1 (motor) | 1 |
-| 10 | pinion2 | Piñón stage 2 | 1 |
-| 11 | bearing_adapter | Adaptador de rodamiento | 4 |
-| 12 | motor_cradle | Soporte de motor | 1 |
+| Parámetro | Valor |
+|-----------|-------|
+| Material | AISI 303 |
+| Longitud total | 130mm |
+| Hueco cuadrado | □6.35 H9 × 130mm |
+| Muñón empuje | Ø15 g6 × 10mm (51102) |
+| Muñón radial | Ø12 g6 × 9mm (6001) |
+| Asiento engranaje | Ø12 h7 |
+| Fijación | 2× M4 ISO 4762 + M4×6 prisionero |
 
-**Total piezas impresas:** 18 (contando sync_gear×2, pillar×4, pillar_short×2, bearing_adapter×4)
+### 5.7 Tornillos Extrusores
+
+| Parámetro | Valor |
+|-----------|-------|
+| Diámetro exterior | 30.36mm |
+| Diámetro interior | 20.24mm |
+| Pitch | 32mm |
+| Longitud | 110mm |
+| Tipo | Bilobe co-rotante |
+| Material | PETG-CF (impreso) |
 
 ---
 
@@ -252,15 +255,14 @@ Se evaluó un reductor planetario NEMA23 impreso en FDM como alternativa.
 
 | Componente | Especificación | Cantidad | Notas |
 |------------|----------------|----------|-------|
-| Rodamiento 6703ZZ | 17×23×4mm | 4 | pos_L, pos_R, pos_Int (base) + par en motor_plate |
-| Rodamiento 6004ZZ | 20×42×12mm | 2 | Eje de salida |
-| Varilla cuadrada 1/4" | 6.35mm | 2 | Migrado desde 3/8" — paredes >3.15mm en cintura |
-| Motor 775 DC | 36V 9000RPM (original) | 1 | O 12V según especificación actual |
-| Tornillos M3 | 30mm | 7 | Montaje de tapa |
-| Tornillos M5 | 40mm | 2 | Fijación engranaje grande y brazo servo |
-| Tornillo M3 | 30mm | 1 | Fijación gear feedback a eje 20mm |
-| Tuerca M3/M5 | — | — | Correspondiente a tornillos |
-| Potenciómetro 10K | Lineal | 1 | Solo si se usa como servo |
+| Rodamiento 51102 | 15×28×9mm | 2 | Empuje axial (uno por eje) |
+| Rodamiento 6001-2Z | 12×28×8mm | 2 | Radial frontal (uno por eje) |
+| Varilla cuadrada 1/4" | 6.35mm | 5 | Ejes de entrada, compound L/R, salida L/R |
+| Placa reacción | AISI 304 2mm ó Al 6082 3mm | 1 | Corte láser |
+| Engranajes salida | Z24 m1.5 acero 20MnCr5 | 2 | Corte / SDP-SI / Misumi |
+| Motor NEMA 23 | 2-3 N·m, eje Ø8 | 1 | Stepperonline / local |
+| Tornillería | ISO 4762 M3×12 / M4×16 / M4×20 | Varios | Caja métrica 12.9 |
+| Grasa | Litio EP2, compatible PETG | 1 | SKF LGMT 2 o similar |
 
 ---
 
@@ -268,77 +270,92 @@ Se evaluó un reductor planetario NEMA23 impreso en FDM como alternativa.
 
 | Parámetro | Valor |
 |-----------|-------|
-| Material | PLA (Creality) |
-| Impresora | Flsun Q5 / Anet E12 / Reprap Prusa I3 |
+| Material | PETG-CF (engranajes) / PLA (prototipos) |
+| Impresora | FDM, boquilla 0.4mm |
 | Resolución | 0.2mm |
-| Infill | 35-45% |
-| Soportes | No |
-| Perímetros | 6+ (especialmente en bearing_adapter) |
+| Infill | 100% (engranajes) / 35-45% (estructura) |
+| Perímetros | 6+ (especialmente en componentes bajo carga) |
+| Temperatura | 250°C boquilla / 80°C cama |
+| Ambiente | Recinto cerrado, filamento seco |
 
 ---
 
 ## 8. Estructura de Archivos
 
 ```
-models/tren_de_transmision/
+models/tren_de_transmicion/
 ├── ESTADO_PROYECTO.md                    ← Este documento
 ├── Tornillos_Corotantes_V2.scad          ← Tornillos co-rotantes (10 Sep 2026)
 ├── barril_v4_corotante.scad              ← Barril V4 actualizado (10 Sep 2026)
-├── grok/                                 ← Visor 3D TwinLock 253 (Grok App Builder)
+├── grok/                                 ← TwinLock 253 SP6 (React + Three.js)
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── layout/AppShell.tsx        ← UI principal con RPM slider
+│   │   │   ├── viewport/DriveCanvas.tsx   ← Visor 3D interactivo
+│   │   │   ├── openscad/PartsSelector.tsx ← Selector de piezas para exportar
+│   │   │   └── panels/                    ← Paneles de documentación
+│   │   ├── lib/
+│   │   │   ├── design.ts                  ← Fuente única de verdad del diseño
+│   │   │   ├── gear-geometry.ts           ← Generador de perfiles evolventes
+│   │   │   ├── gear-loads.ts              ← Cálculo de esfuerzos Lewis/Hertz
+│   │   │   └── bom.ts                     ← Lista de materiales
+│   │   └── openscad/                      ← Sistema de exportación OpenSCAD
+│   │       ├── export.ts                  ← Función principal de exportación
+│   │       ├── parts-list.ts              ← Lista de 22 componentes disponibles
+│   │       ├── utils/parameters.ts        ← Parámetros del diseño
+│   │       └── components/                ← Generadores de código OpenSCAD
+│   │           ├── Gear.ts                ← Engranajes evolventes
+│   │           ├── Bearing.ts             ← Rodamientos 51102/6001
+│   │           ├── Shaft.ts               ← Ejes cuadrados y acoples
+│   │           ├── Screw.ts               ← Tornillos extrusores
+│   │           └── Housing.ts             ← Carcasa (referencia)
+│   └── package.json
 ├── ultimo/
 │   ├── V8.1(gemini).scad                 (12.6 KB, versión Gemini)
 │   ├── tren_v8_2_completo/               (25 Ago 2026)
 │   ├── tren_v8_3_completo/               (25 Ago 2026)
 │   ├── tren_v9_0_completo/               (27 Ago 2026)
 │   ├── tren_v10_0_completo/              (27 Ago 2026)
-│   ├── tren_v10_1_completo/              (27 Ago 2026) ← OBSOLETO
-│   │   ├── tren_v10_1/
-│   │   │   ├── tren_transmision_v10_1.scad   (344 líneas, 16.4 KB)
-│   │   │   ├── export_stls.sh                (script de exportación)
-│   │   │   └── stl/                          (12 STLs, 3.9 MB total)
-│   │   └── tren_v10_1_completo.zip           (353 KB)
-│   ├── stl_tren_transmision/             (STLs versión anterior)
-│   └── tren_transmision_v6_3.stl         (1.36 MB, versión legacy)
-├── stls_final/                           (STLs de otras versiones)
-└── stl_tren_transmision.zip              (323 KB)
+│   └── tren_v10_1_completo/              (27 Ago 2026) ← OBSOLETO
+└── stls_final/                           (STLs de otras versiones)
 ```
 
-### Tamaños de STLs (V10.1)
+### Archivos Generados (OpenSCAD)
 
-| Archivo | Tamaño |
-|---------|--------|
-| base_plate.stl | 374 KB |
-| motor_plate.stl | 291 KB |
-| gear1.stl | 715 KB |
-| gear2.stl | 715 KB |
-| pinion1.stl | 568 KB |
-| pinion2.stl | 511 KB |
-| sync_gear.stl | 400 KB |
-| spacer_base_front.stl | 116 KB |
-| bearing_adapter.stl | 104 KB |
-| motor_cradle.stl | 67 KB |
-| pillar.stl | 41 KB |
-| pillar_short.stl | 41 KB |
-| **Total** | **3.9 MB** |
+El sistema de exportación genera archivos `.scad` con los siguientes componentes:
+
+| Categoría | Piezas | Imprimibles |
+|-----------|--------|-------------|
+| Engranajes | 7 | 7/7 |
+| Rodamientos | 4 | 0/4 (comprados) |
+| Ejes y Acoples | 6 | 6/6 |
+| Tornillos | 2 | 0/2 (comprados) |
+| Carcasa | 2 | 2/2 |
+| Otros | 1 | 0/1 (láser) |
+| **Total** | **22** | **15/22** |
 
 ---
 
 ## 9. Próximos Pasos
 
-### Completados (10 Sep 2026)
+### Completados (16 Sep 2026)
 1. ✅ **Decidir dirección de rotación** — Co-rotante confirmado
 2. ✅ **Resolver eje del tornillo** — Cuadrado 1/4" (6.35mm)
 3. ✅ **Ajustar perfil de kneading** — 16 zonas según Rol et al. (2020)
 4. ✅ **Actualizar tornillos** — Eliminar mirror(), dos piezas idénticas
 5. ✅ **Segmentación DFAM** — 4 bloques de impresión (94-151mm)
+6. ✅ **Visor 3D interactivo** — React + Three.js (TwinLock 253)
+7. ✅ **Sistema de exportación OpenSCAD** — 22 componentes, selector de piezas
+8. ✅ **Eliminar carcasa del modelo 3D** — Simplificación del ensamble
+9. ✅ **Documentación actualizada** — BOM, Planos, DFAM, Arquitectura
 
 ### Pendientes
-6. **Rediseñar tren de transmisión** para co-rotación (nuevo archivo .scad)
-7. **Recalcular esfuerzos** con nueva configuración co-rotante
-8. **Exportar STLs finales** del tren rediseñado
-9. **Verificar clearance** entre todos los componentes en ensamble
-10. **Imprimir prototipo** de prueba
-11. **Medir holguras reales** vs especificación
+10. **Validar código OpenSCAD** — Verificar que genera piezas correctas en OpenSCAD
+11. **Imprimir prototipo** — Engranajes de prueba con configuración actual
+12. **Medir holguras reales** — Verificar tolerancias FDM vs especificación
+13. **Recalcular esfuerzos** — Con nueva configuración de engranajes
+14. **Optimizar geometría** — Ajustar parámetros según resultados de impresión
+15. **Integrar motor** — Acople directo NEMA 23 al piñón distribuidor
 
 ---
 

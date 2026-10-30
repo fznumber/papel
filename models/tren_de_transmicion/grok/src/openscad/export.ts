@@ -6,7 +6,7 @@
 import { generateAllGears, generateGear } from "./components/Gear";
 import { generateAllBearings, generateThrustBearing, generateRadialBearing } from "./components/Bearing";
 import { generateAllShafts, generateSquareShaft, generateMotorCoupling } from "./components/Shaft";
-import { generateAllScrews, generateBilobeScrew } from "./components/Screw";
+import { generateAllScrews, generateModularScrewCode, generateSingleScrew } from "./components/Screw";
 import { generateHousing, generateHousingUpper, generateHousingLower } from "./components/Housing";
 import { PARAMS } from "./utils/parameters";
 import { AVAILABLE_PARTS, type PartInfo } from "./parts-list";
@@ -35,9 +35,9 @@ SHAFT_SQUARE = ${PARAMS.SHAFT_SQUARE};
 CENTER_DISTANCE = ${PARAMS.CENTER_DISTANCE};
 
 // ============================================
-// INCLUIR MCAD
+// INCLUIR DEPENDENCIAS
 // ============================================
-use <MCAD/involute_gears.scad>
+// (sin dependencias externas)
 
 // ============================================
 // PLACA DE REACCIÓN
@@ -52,6 +52,61 @@ translate([0, 0, ${PARAMS.POSITIONS.thrustPlate}])
   code += generateAllBearings();
   code += generateAllShafts();
   code += generateAllScrews();
+  code += generateHousing();
+
+  // Agregar ensamblaje completo
+  code += `
+
+// ============================================
+// ENSAMBLAJE COMPLETO (descomentar para ver)
+// ============================================
+// twinlock253();
+`;
+
+  return code;
+}
+
+/**
+ * Genera el código OpenSCAD del tren de transmisión sin tornillos
+ */
+export function generateOpenSCADCodeWithoutScrews(): string {
+  const timestamp = new Date().toISOString();
+
+  let code = `// ============================================
+// TwinLock-253 - Split-Power Drivetrain (sin tornillos)
+// Generado automáticamente: ${timestamp}
+// ============================================
+
+// Configuración
+$fn = 50;
+
+// ============================================
+// PARÁMETROS
+// ============================================
+MODULE = ${PARAMS.MODULE};
+PRESSURE_ANGLE = ${PARAMS.PRESSURE_ANGLE};
+BACKLASH = ${PARAMS.BACKLASH};
+SHAFT_SQUARE = ${PARAMS.SHAFT_SQUARE};
+CENTER_DISTANCE = ${PARAMS.CENTER_DISTANCE};
+
+// ============================================
+// INCLUIR DEPENDENCIAS
+// ============================================
+// (sin dependencias externas)
+
+// ============================================
+// PLACA DE REACCIÓN
+// ============================================
+// Placa de reacción 3mm
+translate([0, 0, ${PARAMS.POSITIONS.thrustPlate}])
+  cube([72, 48, 3], center = true);
+`;
+
+  // Agregar componentes (sin tornillos)
+  code += generateAllGears();
+  code += generateAllBearings();
+  code += generateAllShafts();
+  // NO generateAllScrews()
   code += generateHousing();
 
   // Agregar ensamblaje completo
@@ -91,9 +146,9 @@ SHAFT_SQUARE = ${PARAMS.SHAFT_SQUARE};
 CENTER_DISTANCE = ${PARAMS.CENTER_DISTANCE};
 
 // ============================================
-// INCLUIR MCAD
+// INCLUIR DEPENDENCIAS
 // ============================================
-use <MCAD/involute_gears.scad>
+// (sin dependencias externas)
 
 `;
 
@@ -175,23 +230,25 @@ function generatePartById(partId: string): string {
 
     // Ejes
     case "shaft-input":
-      return generateSquareShaft(56, [0, XY.inputY, POSITIONS.distribution + 28], "Eje entrada");
+      return generateSquareShaft(56, [0, XY.inputY, POSITIONS.distribution + 28], [0, 0, 0], "Eje entrada");
     case "shaft-compound-l":
-      return generateSquareShaft(70, [XY.cmpL, 0, POSITIONS.distribution], "Eje compound L");
+      return generateSquareShaft(70, [XY.cmpL, 0, POSITIONS.distribution], [0, 0, 0], "Eje compound L");
     case "shaft-compound-r":
-      return generateSquareShaft(70, [XY.cmpR, 0, POSITIONS.distribution], "Eje compound R");
+      return generateSquareShaft(70, [XY.cmpR, 0, POSITIONS.distribution], [0, 0, 0], "Eje compound R");
     case "shaft-output-l":
-      return generateSquareShaft(130, [XY.outL, 0, 0], "Eje salida L");
+      return generateSquareShaft(130, [XY.outL, 0, 0], [0, 0, 0], "Eje salida L");
     case "shaft-output-r":
-      return generateSquareShaft(130, [XY.outR, 0, 0], "Eje salida R");
+      return generateSquareShaft(130, [XY.outR, 0, 0], [0, 0, 0], "Eje salida R");
     case "coupling-motor":
       return generateMotorCoupling([0, XY.inputY, POSITIONS.distribution - 45]);
 
     // Tornillos
     case "screw-l":
-      return generateBilobeScrew([XY.outL, 0, POSITIONS.thrustPlate - PARAMS.SCREW.length]);
+      return generateSingleScrew("assembly");
     case "screw-r":
-      return generateBilobeScrew([XY.outR, 0, POSITIONS.thrustPlate - PARAMS.SCREW.length]);
+      return generateSingleScrew("assembly");
+    case "screw-pair":
+      return generateAllScrews();
 
     // Carcasa
     case "housing-upper":
@@ -268,7 +325,7 @@ export function generateSinglePart(partName: string): string {
 // Generado: ${new Date().toISOString()}
 
 $fn = 50;
-use <MCAD/involute_gears.scad>
+
 `;
 
   switch (partName.toLowerCase()) {
@@ -280,8 +337,8 @@ use <MCAD/involute_gears.scad>
     case "crown":
       code += generateGearZ54();
       break;
-    case "gear-z10":
-    case "pinion":
+    case "gear-z16":
+    case "cmp-pinion":
       code += generateGearZ10();
       break;
     case "gear-z20":
@@ -306,82 +363,46 @@ use <MCAD/involute_gears.scad>
 // Funciones auxiliares para piezas individuales
 function generateGearZ18(): string {
   const { input } = PARAMS.GEARS;
-  return `
-// Engranaje Z18 - Entrada
-difference() {
-  gear(
-    number_of_teeth = ${input.z},
-    circular_pitch = ${(Math.PI * input.m).toFixed(4)},
-    pressure_angle = ${PARAMS.PRESSURE_ANGLE},
-    gear_thickness = ${input.face},
-    rim_thickness = ${input.face},
-    hub_thickness = 0,
-    bore_diameter = 0,
-    backlash = ${PARAMS.BACKLASH}
-  );
-  cube([${PARAMS.SHAFT_SQUARE + 0.2}, ${PARAMS.SHAFT_SQUARE + 0.2}, ${input.face + 2}], center = true);
-}
-`;
+  return generateGear({
+    teeth: input.z,
+    module: input.m,
+    face: input.face,
+    squareBore: PARAMS.SHAFT_SQUARE,
+    name: "Engranaje Entrada Z18"
+  });
 }
 
 function generateGearZ54(): string {
   const { crown } = PARAMS.GEARS;
-  return `
-// Corona Z54
-difference() {
-  gear(
-    number_of_teeth = ${crown.z},
-    circular_pitch = ${(Math.PI * crown.m).toFixed(4)},
-    pressure_angle = ${PARAMS.PRESSURE_ANGLE},
-    gear_thickness = ${crown.face},
-    rim_thickness = ${crown.face},
-    hub_thickness = 0,
-    bore_diameter = 0,
-    backlash = ${PARAMS.BACKLASH}
-  );
-  cube([${PARAMS.SHAFT_SQUARE + 0.2}, ${PARAMS.SHAFT_SQUARE + 0.2}, ${crown.face + 2}], center = true);
-}
-`;
+  return generateGear({
+    teeth: crown.z,
+    module: crown.m,
+    face: crown.face,
+    squareBore: PARAMS.SHAFT_SQUARE,
+    name: "Corona Z54"
+  });
 }
 
 function generateGearZ10(): string {
-  const { pinion } = PARAMS.GEARS;
-  return `
-// Piñón Z10
-difference() {
-  gear(
-    number_of_teeth = ${pinion.z},
-    circular_pitch = ${(Math.PI * pinion.m).toFixed(4)},
-    pressure_angle = ${PARAMS.PRESSURE_ANGLE},
-    gear_thickness = ${pinion.face},
-    rim_thickness = ${pinion.face},
-    hub_thickness = 0,
-    bore_diameter = 0,
-    backlash = ${PARAMS.BACKLASH}
-  );
-  cube([${PARAMS.SHAFT_SQUARE + 0.2}, ${PARAMS.SHAFT_SQUARE + 0.2}, ${pinion.face + 2}], center = true);
-}
-`;
+  const { cmpPinion } = PARAMS.GEARS;
+  return generateGear({
+    teeth: cmpPinion.z,
+    module: cmpPinion.m,
+    face: cmpPinion.face,
+    squareBore: PARAMS.SHAFT_SQUARE,
+    name: "Piñón Z16"
+  });
 }
 
 function generateGearZ20(): string {
   const { output } = PARAMS.GEARS;
-  return `
-// Engranaje Z20 - Salida
-difference() {
-  gear(
-    number_of_teeth = ${output.z},
-    circular_pitch = ${(Math.PI * output.m).toFixed(4)},
-    pressure_angle = ${PARAMS.PRESSURE_ANGLE},
-    gear_thickness = ${output.face},
-    rim_thickness = ${output.face},
-    hub_thickness = 0,
-    bore_diameter = 0,
-    backlash = ${PARAMS.BACKLASH}
-  );
-  cube([${PARAMS.SHAFT_SQUARE + 0.2}, ${PARAMS.SHAFT_SQUARE + 0.2}, ${output.face + 2}], center = true);
-}
-`;
+  return generateGear({
+    teeth: output.z,
+    module: output.m,
+    face: output.face,
+    squareBore: PARAMS.SHAFT_SQUARE,
+    name: "Engranaje Z20 - Salida"
+  });
 }
 
 function generateBearing51102(): string {

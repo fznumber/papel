@@ -63,6 +63,11 @@ export function PartsSelector({ open, onOpenChange }: PartsSelectorProps) {
     }
   };
 
+  const selectAllExceptScrews = () => {
+    const nonScrewParts = AVAILABLE_PARTS.filter((p) => p.category !== "screw");
+    setSelectedParts(new Set(nonScrewParts.map((p) => p.id)));
+  };
+
   const toggleCategoryExpand = (categoryId: string) => {
     setExpandedCategories((prev) => {
       const next = new Set(prev);
@@ -106,12 +111,12 @@ export function PartsSelector({ open, onOpenChange }: PartsSelectorProps) {
 
         {/* Content */}
         <div className="overflow-y-auto max-h-[50vh] p-4">
-          {/* Select All */}
-          <div className="flex items-center gap-2 pb-3 border-b border-border mb-3">
+          {/* Quick Select Buttons */}
+          <div className="flex flex-wrap gap-2 pb-3 border-b border-border mb-3">
             <button
               type="button"
               onClick={toggleAll}
-              className="flex items-center gap-2 text-sm font-medium"
+              className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
             >
               {allSelected ? (
                 <CheckSquare className="h-4 w-4" />
@@ -122,7 +127,15 @@ export function PartsSelector({ open, onOpenChange }: PartsSelectorProps) {
               ) : (
                 <Square className="h-4 w-4" />
               )}
-              Seleccionar todo
+              Todo
+            </button>
+            <button
+              type="button"
+              onClick={selectAllExceptScrews}
+              className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
+            >
+              <Square className="h-4 w-4" />
+              Tren sin tornillos
             </button>
           </div>
 

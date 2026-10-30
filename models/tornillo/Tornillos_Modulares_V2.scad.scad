@@ -1,15 +1,14 @@
 /* ==========================================================
-   TORNILLO EXTRUSOR - V2 CO-ROTANTE (MODULAR MULTI-PIEZA)
+   TORNILLO EXTRUSOR - V2 CO-ROTANTE (NOMENCLATURA LIMPIA)
    Material: PETG-CF | OD: 25.3mm | Eje: Cuadrado 1/4" (6.35mm)
    ----------------------------------------------------------
-   - Permite exportar las 16 fases individuales (Z1a hasta Z4b).
-   - Las piezas individuales aparecen en Z=0 listas para el Slicer.
+   - Nomenclatura ajustada a los bloques FÍSICOS de impresión.
+   - S1 = Segmento 1, S2 = Segmento 2, etc.
    ========================================================== */
 
-// SELECCIONA QUÉ IMPRIMIR AQUÍ ABAJO:
-part = "seg1"; // [Z1a, Z1b, Z1c, Z2a, Z2b, Z2c, Z3a, Z3b, Z3c, Z3d, Z3e, Z3f, Z3g, Z3h, Z4a, Z4b, seg1, seg2, seg3, seg4, assembly, pair]
+part = "assembly"; // [S1a, S1b, S1c, S2a, S2b, S2c, S2d, S2e, S3a, S3b, S3c, S3d, S3e, S4a, S4b, S4c, seg1, seg2, seg3, seg4, assembly, pair]
 
-/* --- PARÁMETROS GEOMÉTRICOS --- */
+/* --- PARÁMETROS GEOMÉTRICOS PRINCIPALES --- */
 od_nominal = 25.3;
 root_radius = 7.85;
 square_shaft_side = 6.35;   // 1/4 de pulgada exacta
@@ -64,36 +63,41 @@ module phase_knead(length, elements, stagger_angle, start_angle, hand="R") {
 }
 
 /* ==========================================================
-   DEFINICIÓN DE LAS 16 FASES (TODAS EMPIEZAN EN Z=0)
+   DEFINICIÓN DE LAS 16 FASES FÍSICAS (S = Segmento)
    ========================================================== */
-module p_Z1a() { phase_convey(50.60, 50.60, 0, "R"); }
-module p_Z1b() { phase_convey(50.60, 50.60, 0, "R"); }
-module p_Z1c() { phase_convey(37.95, 37.95, 0, "R"); }
 
-module p_Z2a() { phase_convey(37.95, 37.95, 0, "R"); }
-module p_Z2b() { phase_knead(37.95, 5, 45, 0, "F"); }  
-module p_Z2c() { phase_convey(18.98, 18.98, 180, "R"); }
+// --- SEGMENTO 1 (Zona de Alimentación) ---
+module p_S1a() { phase_convey(50.60, 50.60, 0, "R"); }
+module p_S1b() { phase_convey(50.60, 50.60, 0, "R"); }
+module p_S1c() { phase_convey(37.95, 37.95, 0, "R"); }
 
-module p_Z3a() { phase_knead(37.95, 5, 45, 180, "R"); } 
-module p_Z3b() { phase_convey(18.98, 18.98, 0, "L"); }   
-module p_Z3c() { phase_knead(37.95, 5, 45, 0, "R"); }   
-module p_Z3d() { phase_convey(18.98, 18.98, 180, "L"); } 
-module p_Z3e() { phase_knead(37.95, 4, 90, 180, "N"); } 
-module p_Z3f() { phase_convey(18.98, 18.98, 90, "L"); }  
-module p_Z3g() { phase_knead(37.95, 5, 45, 90, "R"); }  
-module p_Z3h() { phase_convey(18.98, 18.98, 270, "R"); } 
+// --- SEGMENTO 2 (Impregnación + Inicio Fibrilación) ---
+module p_S2a() { phase_convey(37.95, 37.95, 0, "R"); }
+module p_S2b() { phase_knead(37.95, 5, 45, 0, "F"); }  // Knead Forward
+module p_S2c() { phase_convey(18.98, 18.98, 180, "R"); }
+module p_S2d() { phase_knead(37.95, 5, 45, 180, "R"); }// Knead Reverse
+module p_S2e() { phase_convey(18.98, 18.98, 0, "L"); } // Reversa corta
 
-module p_Z4a() { phase_convey(37.95, 37.95, 270, "R"); }
-module p_Z4b() { phase_convey(37.95, 37.95, 270, "R"); }
+// --- SEGMENTO 3 (Fibrilación Crítica Máxima) ---
+module p_S3a() { phase_knead(37.95, 5, 45, 0, "R"); }   // Knead Reverse
+module p_S3b() { phase_convey(18.98, 18.98, 180, "L"); } // Reversa corta
+module p_S3c() { phase_knead(37.95, 4, 90, 180, "N"); } // Knead NEUTRAL 90°
+module p_S3d() { phase_convey(18.98, 18.98, 90, "L"); }  // Reversa corta
+module p_S3e() { phase_knead(37.95, 5, 45, 90, "R"); }  // Knead Reverse
+
+// --- SEGMENTO 4 (Descarga) ---
+module p_S4a() { phase_convey(18.98, 18.98, 270, "R"); } // Salida a transporte
+module p_S4b() { phase_convey(37.95, 37.95, 270, "R"); }
+module p_S4c() { phase_convey(37.95, 37.95, 270, "R"); }
 
 /* ==========================================================
    MÓDULOS DE LOS 4 BLOQUES GRANDES
    ========================================================== */
 ov = 0.02; 
-module print_seg1() { p_Z1a(); z1=50.60; translate([0,0,z1-ov]) p_Z1b(); z2=z1+50.60; translate([0,0,z2-ov]) p_Z1c(); }
-module print_seg2() { p_Z2a(); z1=37.95; translate([0,0,z1-ov]) p_Z2b(); z2=z1+37.95; translate([0,0,z2-ov]) p_Z2c(); z3=z2+18.98; translate([0,0,z3-ov]) p_Z3a(); z4=z3+37.95; translate([0,0,z4-ov]) p_Z3b(); }
-module print_seg3() { p_Z3c(); z1=37.95; translate([0,0,z1-ov]) p_Z3d(); z2=z1+18.98; translate([0,0,z2-ov]) p_Z3e(); z3=z2+37.95; translate([0,0,z3-ov]) p_Z3f(); z4=z3+18.98; translate([0,0,z4-ov]) p_Z3g(); }
-module print_seg4() { p_Z3h(); z1=18.98; translate([0,0,z1-ov]) p_Z4a(); z2=z1+37.95; translate([0,0,z2-ov]) p_Z4b(); }
+module print_seg1() { p_S1a(); z1=50.60; translate([0,0,z1-ov]) p_S1b(); z2=z1+50.60; translate([0,0,z2-ov]) p_S1c(); }
+module print_seg2() { p_S2a(); z1=37.95; translate([0,0,z1-ov]) p_S2b(); z2=z1+37.95; translate([0,0,z2-ov]) p_S2c(); z3=z2+18.98; translate([0,0,z3-ov]) p_S2d(); z4=z3+37.95; translate([0,0,z4-ov]) p_S2e(); }
+module print_seg3() { p_S3a(); z1=37.95; translate([0,0,z1-ov]) p_S3b(); z2=z1+18.98; translate([0,0,z2-ov]) p_S3c(); z3=z2+37.95; translate([0,0,z3-ov]) p_S3d(); z4=z3+18.98; translate([0,0,z4-ov]) p_S3e(); }
+module print_seg4() { p_S4a(); z1=18.98; translate([0,0,z1-ov]) p_S4b(); z2=z1+37.95; translate([0,0,z2-ov]) p_S4c(); }
 
 module full_screw_assembly() {
     color("DodgerBlue")  print_seg1();
@@ -108,12 +112,10 @@ module full_screw_assembly() {
 module make_part() {
     difference() {
         // Selector de 16 Piezas Individuales
-        if      (part == "Z1a") p_Z1a(); else if (part == "Z1b") p_Z1b(); else if (part == "Z1c") p_Z1c();
-        else if (part == "Z2a") p_Z2a(); else if (part == "Z2b") p_Z2b(); else if (part == "Z2c") p_Z2c();
-        else if (part == "Z3a") p_Z3a(); else if (part == "Z3b") p_Z3b(); else if (part == "Z3c") p_Z3c();
-        else if (part == "Z3d") p_Z3d(); else if (part == "Z3e") p_Z3e(); else if (part == "Z3f") p_Z3f();
-        else if (part == "Z3g") p_Z3g(); else if (part == "Z3h") p_Z3h();
-        else if (part == "Z4a") p_Z4a(); else if (part == "Z4b") p_Z4b();
+        if      (part == "S1a") p_S1a(); else if (part == "S1b") p_S1b(); else if (part == "S1c") p_S1c();
+        else if (part == "S2a") p_S2a(); else if (part == "S2b") p_S2b(); else if (part == "S2c") p_S2c(); else if (part == "S2d") p_S2d(); else if (part == "S2e") p_S2e();
+        else if (part == "S3a") p_S3a(); else if (part == "S3b") p_S3b(); else if (part == "S3c") p_S3c(); else if (part == "S3d") p_S3d(); else if (part == "S3e") p_S3e();
+        else if (part == "S4a") p_S4a(); else if (part == "S4b") p_S4b(); else if (part == "S4c") p_S4c();
         
         // Selector de 4 Bloques Gigantes
         else if (part == "seg1") print_seg1(); else if (part == "seg2") print_seg2();

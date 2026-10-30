@@ -15,9 +15,11 @@ import {
 } from "@/lib/design";
 import { computeGearLoads, KNEAD_PEAK, type GearLoadResult } from "@/lib/gear-loads";
 import { PART_COLOR } from "@/lib/bom";
-import { createBilobeScrewGeometry, getGearGeometry, clearGearCache } from "@/lib/gear-geometry";
+import { getGearGeometry, clearGearCache } from "@/lib/gear-geometry";
 import { cn } from "@/lib/utils";
 import { useStudio } from "@/store/studio";
+import { useScrewGeometry } from "@/hooks/useOpenSCADGeometry";
+import { ScrewLoadingPlaceholder } from "./ScrewLoadingPlaceholder";
 
 const HIGHLIGHT = "#f2efe6";
 
@@ -224,16 +226,7 @@ function DriveTrain() {
   });
 
   const e = explode;
-  const screwGeo = useMemo(
-    () =>
-      createBilobeScrewGeometry({
-        length: SCREW.length,
-        doOuter: SCREW.doOuter,
-        diInner: SCREW.diInner,
-        pitch: SCREW.pitch,
-      }),
-    [],
-  );
+  const { geometry: screwGeo, loading: screwLoading } = useScrewGeometry("assembly");
 
   const plateSel = useSelect("thrust-plate");
   const motorSel = useSelect(motorId === "dc775_12" ? "motor-775" : "motor-nema");
@@ -284,17 +277,37 @@ function DriveTrain() {
           </group>
           <AdapterShaft />
           {showScrews ? (
-            <mesh
-              geometry={screwGeo}
-              position={[0, 0, Z.thrustPlate - SCREW.length - e * 36]}
-              {...screwSel.bind}
-            >
-              <meshStandardMaterial
-                color={screwSel.color(PART_COLOR["square-rod"]!)}
-                metalness={0.35}
-                roughness={0.42}
-              />
-            </mesh>
+            screwLoading ? (
+              <group position={[0, 0, Z.thrustPlate - SCREW.length / 2 - e * 36]}>
+                <ScrewLoadingPlaceholder
+                  length={SCREW.length}
+                  radius={SCREW.doOuter / 2}
+                  color={PART_COLOR["square-rod"]!}
+                  metalness={0.35}
+                  roughness={0.42}
+                />
+                <Html center distanceFactor={150}>
+                  <div className="rounded-lg bg-background/90 px-3 py-2 text-xs text-muted-foreground shadow-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      Renderizando OpenSCAD...
+                    </div>
+                  </div>
+                </Html>
+              </group>
+            ) : screwGeo ? (
+              <mesh
+                geometry={screwGeo}
+                position={[0, 0, Z.thrustPlate - SCREW.length - e * 36]}
+                {...screwSel.bind}
+              >
+                <meshStandardMaterial
+                  color={screwSel.color(PART_COLOR["square-rod"]!)}
+                  metalness={0.35}
+                  roughness={0.42}
+                />
+              </mesh>
+            ) : null
           ) : null}
         </group>
       </group>
@@ -328,17 +341,37 @@ function DriveTrain() {
           </group>
           <AdapterShaft />
           {showScrews ? (
-            <mesh
-              geometry={screwGeo}
-              position={[0, 0, Z.thrustPlate - SCREW.length - e * 36]}
-              {...screwSel.bind}
-            >
-              <meshStandardMaterial
-                color={screwSel.color(PART_COLOR["square-rod"]!)}
-                metalness={0.32}
-                roughness={0.45}
-              />
-            </mesh>
+            screwLoading ? (
+              <group position={[0, 0, Z.thrustPlate - SCREW.length / 2 - e * 36]}>
+                <ScrewLoadingPlaceholder
+                  length={SCREW.length}
+                  radius={SCREW.doOuter / 2}
+                  color={PART_COLOR["square-rod"]!}
+                  metalness={0.32}
+                  roughness={0.45}
+                />
+                <Html center distanceFactor={150}>
+                  <div className="rounded-lg bg-background/90 px-3 py-2 text-xs text-muted-foreground shadow-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      Renderizando OpenSCAD...
+                    </div>
+                  </div>
+                </Html>
+              </group>
+            ) : screwGeo ? (
+              <mesh
+                geometry={screwGeo}
+                position={[0, 0, Z.thrustPlate - SCREW.length - e * 36]}
+                {...screwSel.bind}
+              >
+                <meshStandardMaterial
+                  color={screwSel.color(PART_COLOR["square-rod"]!)}
+                  metalness={0.32}
+                  roughness={0.45}
+                />
+              </mesh>
+            ) : null
           ) : null}
         </group>
       </group>

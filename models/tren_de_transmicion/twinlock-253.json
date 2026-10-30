@@ -1,0 +1,173 @@
+{
+  "designation": "TwinLock-253-SP6",
+  "spec": {
+    "name": "TwinLock-253-SP6",
+    "project": "TSE fibrilación de celulosa (algodón / tocuyo)",
+    "centerDistance": 25.3,
+    "shaftSquare": 6.35,
+    "phaseDeg": 90,
+    "outputRatio": 1,
+    "corotating": true,
+    "torqueCombinedMin": 10,
+    "torqueCombinedMax": 15,
+    "screwRpmMin": 50,
+    "screwRpmMax": 300,
+    "thrustDesignN": 2000,
+    "radialDesignN": 1200,
+    "backlashAllowance": 0.25,
+    "petgSofteningC": 75
+  },
+  "gears": {
+    "input": {
+      "z": 18,
+      "m": 1.5,
+      "face": 14,
+      "material": "PETG-CF",
+      "pd": 27
+    },
+    "crown": {
+      "z": 54,
+      "m": 1.5,
+      "face": 14,
+      "material": "PETG-CF",
+      "pd": 81
+    },
+    "cmpPinion": {
+      "z": 16,
+      "m": 1.5,
+      "face": 16,
+      "material": "PETG-CF",
+      "pd": 24
+    },
+    "output": {
+      "z": 24,
+      "m": 1.5,
+      "face": 16,
+      "material": "PETG-CF",
+      "pd": 36
+    }
+  },
+  "splitRatio": 4.5,
+  "positionsMm": {
+    "outL": {
+      "x": -12.65,
+      "y": 0
+    },
+    "outR": {
+      "x": 12.65,
+      "y": 0
+    },
+    "cmpL": {
+      "x": -42.65,
+      "y": 0
+    },
+    "cmpR": {
+      "x": 42.65,
+      "y": 0
+    },
+    "input": {
+      "x": 0,
+      "y": 33.12065065785997
+    }
+  },
+  "axialMm": {
+    "thrustPlate": 0,
+    "thrustBearing": 8,
+    "frontRadial": 22,
+    "outputGearL": 40,
+    "outputGearR": 60,
+    "distribution": 84,
+    "housingEnd": 120,
+    "reducer": 148,
+    "motor": 188
+  },
+  "axialStack": [
+    {
+      "z": -110,
+      "label": "Inicio eje cuadrado (tornillo)",
+      "part": "adaptador"
+    },
+    {
+      "z": 0,
+      "label": "Placa de reacción 3 mm",
+      "part": "thrust-plate"
+    },
+    {
+      "z": 8,
+      "label": "51102 empuje",
+      "part": "thrust-51102"
+    },
+    {
+      "z": 22,
+      "label": "6001 radial ante",
+      "part": "radial-6001"
+    },
+    {
+      "z": 40,
+      "label": "Engranaje salida L",
+      "part": "gear-out-steel"
+    },
+    {
+      "z": 60,
+      "label": "Engranaje salida R",
+      "part": "gear-out-steel"
+    },
+    {
+      "z": 120,
+      "label": "Cierre caja",
+      "part": "housing"
+    }
+  ],
+  "bearings": {
+    "thrust": {
+      "spec": "51102",
+      "d": 15,
+      "D": 28,
+      "T": 9,
+      "Ca": 6700,
+      "C0a": 9800
+    },
+    "radial": {
+      "spec": "6001-2Z",
+      "d": 12,
+      "D": 28,
+      "B": 8,
+      "Cr": 5100,
+      "C0r": 2380
+    }
+  },
+  "screw": {
+    "doOuter": 25.3,
+    "diInner": 15.7,
+    "pitch": 32,
+    "length": 518
+  },
+  "adapter": {
+    "id": "TL-253-AD",
+    "material": "AISI 303",
+    "overall": 130,
+    "square": 6.35,
+    "squareDepth": 130,
+    "squareTol": "H9",
+    "plateHole": 16.5,
+    "shoulderOd": 18,
+    "shoulderLen": 2.5,
+    "thrustJournal": 15,
+    "thrustJournalTol": "g6",
+    "thrustJournalLen": 10,
+    "radialJournal": 12,
+    "radialJournalTol": "g6",
+    "radialJournalLen": 9,
+    "gearSeat": 12,
+    "gearSeatTol": "h7",
+    "clamp": "2× M4 ISO 4762 en brida partida",
+    "setScrew": "M4×6 prisionero sobre el cuadrado",
+    "pin": "Ø3 opcional, pasante, anti-extracción",
+    "note": "Eje cuadrado 1/4\" (6.35mm) conecta tornillo extrusor con engranaje de salida. L y R son idénticos."
+  },
+  "housing": {
+    "width": 186.3,
+    "height": 105.12065065785997,
+    "depth": 126
+  }
+}
