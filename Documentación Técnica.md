@@ -1,4 +1,7 @@
 # Documentación Técnica: Extrusor de Doble Tornillo (Prototipo V1)
+
+> **OBSOLETO (30 Oct 2026):** Describe el prototipo V1 (varilla hex 8 mm, 11,11:1, 6002ZZ, 520 mm). **No corresponde a la máquina actual.** La fuente de verdad es `models/tren_de_transmicion/twinlock_253_v16_2.scad` y el estado vigente está en `models/tren_de_transmicion/ESTADO_PROYECTO.md` (PETG, cuadrado 6,35 mm, 4,5:1, 6703, 537,65 mm).
+
 **Aplicación:** Procesamiento y refinamiento de fibra de algodón (tela de tocuyo) para pulpa de papel.
 **Método de Fabricación:** Impresión 3D FDM (Material recomendado: PETG).
 

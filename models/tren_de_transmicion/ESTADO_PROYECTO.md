@@ -1,416 +1,239 @@
-# Estado del Proyecto: Tren de Transmisión - Extrusor de Doble Tornillo
+# Estado del Proyecto: extrusor de doble tornillo
 
-**Fecha de análisis:** 31 Agosto 2026
-**Última actualización:** 16 Septiembre 2026
-**Versión actual:** TwinLock 253 SP6 (`grok/`) — Visor 3D + exportación OpenSCAD
-**Versión tornillos:** Co-rotante (`Tornillos_Corotantes_V2.scad`, `barril_v4_corotante.scad`)
+**Última actualización:** 31 Octubre 2026
+
+**Versión mecánica:** TwinLock-253 V16.2 + ensamble total V1
+
+**Fuente de verdad:** `models/tren_de_transmicion/twinlock_253_v16_2.scad`
+
 **Repositorio:** https://github.com/fznumber/papel
-**Fuentes:** 
-- Conversación Claude: https://claude.ai/chat/c8eca65c-93de-4b20-9bfd-fd59280d5355
-- Conversación Google AI Studio: https://aistudio.google.com/prompts/1xM7ovBlS0q-32TjwNihHUeMw2wm9nHcS
-- Repositorio local: `models/tren_de_transmicion/`
 
 ---
 
-## 1. Resumen Ejecutivo
+## 1. Resumen ejecutivo
 
-El tren de transmisión es el subsystema mecánico que transfiere potencia desde un motor DC 775 o NEMA 23 hasta los dos tornillos **co-rotantes** de un extrusor de doble tornillo (TSE) diseñado para fibrilación de celulosa en la fabricación de papel moneda.
+El proyecto es un extrusor de doble tornillo co-rotante para fibrilar pulpa de algodón (tocuyo) destinada a papel de billetes. La máquina actual es un **prototipo PETG** con geometría **tangencial**, no intermeshing. La prioridad es que arranque, no se atasque y produzca pulpa usable; la fidelidad al diseño de investigación queda para la fase 2.
 
-El diseño ha evolucionado a través de **10+ versiones** desde V5 hasta V10.1, resolviendo problemas críticos de:
-- Colisión mecánica entre componentes
-- Solape de bolsillos de rodamiento
-- Corrección de especificaciones de rodamientos
-- Migración de eje hexagonal a cuadrado
-
-**Estado actual (16 Sep 2026):** TwinLock 253 SP6 — Visor 3D interactivo con exportación OpenSCAD. Incluye sistema de selección de piezas para fabricación modular. Los componentes se exportan individualmente o en lote para impresión 3D.
+**Decisión vigente:** mantener OD 25,3 mm, CD 25,3 mm, holguras 0,9/0,4 mm y 3 bloques reverse. No rediseñar el gearbox ni pasar a intermeshing hasta tener una línea base de pulpa.
 
 ---
 
-## 2. Historial de Versiones
+## 2. Estado actual
 
-| Versión | Fecha | Cambios Principales | Estado |
-|---------|-------|---------------------|--------|
-| V5-V6 | — | Diseño inicial, CGAL Error fixing, generador involuta | Obsoleto |
-| V8.1 | ~24 Ago 2026 | Holgura gear2, base reducida D=20mm H=19mm, cinemática contrarrotante | Obsoleto |
-| V8.2 | 25 Ago 2026 | Fix colisión pilar/bloque, holgura gear2 contra tope | Obsoleto |
-| V8.3 | 25 Ago 2026 | pillar_short arranca en front_spacer_top (tope real) | Obsoleto |
-| V9.0 | 27 Ago 2026 | Eje hexagonal → varilla cuadrada 3/8" (9.525mm) | Obsoleto |
-| V10.0 | 27 Ago 2026 | Rodamiento 6002ZZ → 6703 (17×23×5mm) | Corregido |
-| V10.1 | 27 Ago 2026 | bearing_w corregido a 4mm (ancho real catálogo) | Obsoleto |
-| Tornillos V2 | 10 Sep 2026 | Co-rotante, eje 1/4", kneading discs, 16 zonas, segmentación 4 bloques | **Actual** |
-| TwinLock 253 SP6 | 16 Sep 2026 | Visor 3D + exportación OpenSCAD con selector de piezas | **Actual** |
+| Subsistema | Archivo | Estado |
+|------------|---------|--------|
+| Caja de transmisión | `twinlock_253_v16_2.scad` | V16.2 watertight, 4,5:1; adaptadores opuestos y 2 ejes de compuestos |
+| Tornillos | `models/tornillo/Tornillos_Modulares_V2.scad` | Válido, tangencial, 537,65 mm |
+| Barril | `models/barril/barril.scad` | V4.3; ensamble, collar y tuercas corregidos; base separada |
+| Portador de dado | `models/portador/portador.scad` | V1 watertight; placas 8/6/4; integrado al ensamble total |
+| Ensamble total | `models/assembly_total.scad` | Watertight; marco + caja + barril + portador + ejes; 200×185×818 mm |
+| Adaptador de salida | `twinlock_253_v16_2.scad` → `bearing_adapter` | Válido para 6703; 4 uds. |
+| Acople directo | `acople_directo.scad` | Solo prueba en vacío; no usar con pulpa |
+| Config del visor | `twinlock-253.json` | Obsoleto; ignorar o borrar |
 
----
-
-## 3. Problemas Resueltos (Detalle)
-
-### 3.1 Rodamiento 6002ZZ → 6703 (V10.0)
-
-**Problema:**
-Los bolsillos de rodamiento en las posiciones `pos_L` y `pos_R` (separadas 25.3mm, distancia fija entre ejes de tornillos) se fusionaban en una sola cavidad con el rodamiento 6002ZZ (OD=32mm). Se midió un solape de **1800mm³** mediante corte transversal del modelo impreso.
-
-**Solución:**
-Cambio a rodamiento 6703 (serie extra-delgada):
-- OD nominal: 23mm (vs 32mm del 6002ZZ)
-- ID nominal: 17mm
-- Ancho: 4mm (confirmado con catálogo NTN/ISK/MISUMI)
-
-**Resultado:**
-- Queda **2.3mm de pared sólida real** entre ambos bolsillos
-- El poste del `bearing_adapter` mejora de **0.45mm a 1.45mm** de pared alrededor del eje cuadrado
-- **Nota:** Sigue siendo el punto más ajustado del tren — imprimir con 6+ perímetros
-
-### 3.2 Corrección bearing_w: 5mm → 4mm (V10.1)
-
-**Problema:**
-El ancho del 6703 se usó como 5mm por error en V10.0. El catálogo de NTN/ISK/MISUMI confirma B=4mm.
-
-**Solución:**
-- Corrección de `bearing_w = 5` → `bearing_w = 4`
-- 3 offsets que estaban escritos a mano como "9" en la vista de ensamblaje fueron corregidos para usar la variable `bearing_w`
-- El fix se propaga automáticamente a los 12 puntos de referencia
-
-**Verificación:**
-Todos los STLs compilan limpio (Simple: yes) tras el cambio.
-
-### 3.3 Colisión pilar/bloque frontal (V8.2/V8.3)
-
-**Problema:**
-El pilar corto (`pillar_short`) arrancaba en `Z_stage2` (44mm) directamente, creando un hueco de 4mm de aire entre el tope del bloque frontal (`spacer_base_front`) y la base del pilar. Esto causaba que el pilar quedara "flotando" sin apoyo real.
-
-**Solución (V8.2):**
-- Añadir `front_spacer_clearance = 4mm` para crear holgura real contra el tope
-
-**Solución (V8.3):**
-- `pillar_short` ahora arranca en `front_spacer_top = Z_stage2 - front_spacer_clearance` (40mm)
-- El pilar se apoya efectivamente sobre el bloque frontal
-
-### 3.4 Holgura gear2 contra tope (V8.2)
-
-**Problema:**
-`gear2` (engranaje verde, 60 dientes) tocaba el bloque frontal sin holgura (0mm de gap), causando interferencia mecánica.
-
-**Solución:**
-- `front_spacer_clearance = 4mm` añadido
-- `front_spacer_top = Z_stage2 - front_spacer_clearance` calculado correctamente
-
-### 3.5 Eje hexagonal → cuadrado 3/8" (V9.0)
-
-**Problema:**
-El eje hexagonal de 8mm (hex_shaft_flat = 8.3mm) limitaba la transferencia de torque y presentaba problemas de deslizamiento bajo carga.
-
-**Solución:**
-- Migración a varilla cuadrada 3/8" (9.525mm)
-- `square_clearance = 0.3mm` para tolerancia de impresión
-- Barreno cuadrado con indexado libre cada 90° (sync_teeth=12 es múltiplo de 4)
-- Módulo `square_hole()` reemplaza `hex_hole()` en todas las piezas
-
-### 3.6 Generador matemático de engranajes evolventes
-
-**Implementación:**
-- Módulo `involute_gear_2d(teeth, m, pressure_angle=20)` genera perfiles 2D completos
-- Cálculo de círculo base, paso,-addendum, dedendum
-- Función de involuta: `inv(a) = (tan(a) - (a * PI / 180)) * 180 / PI`
-- Polígono con resolución configurable (`$fn=teeth*2`)
-
-**Parámetros:**
-- Ángulo de presión: 20° (estándar industrial)
-- Backlash: 0.25mm
-- Módulo principal: 1.5 (engranajes de transmisión)
-- Módulo sync: 25.3/12 = 2.108 (engranajes de sincronización)
+Documentación desactualizada que todavía describe otras versiones: `especificaciones/EXTRUSOR.md` (20 mm, acero, intermeshing), `Documentación Técnica.md` (V1, hex 8 mm, 11,11:1, 6002ZZ) y partes de `referencias/proceso-tela-papel.md` (D 20,3 / L 520).
 
 ---
 
-## 4. Problemas Pendientes
+## 3. Especificaciones
 
-### 4.1 ~~🔴 CRÍTICO: Co-rotante vs Contrarrotante~~ — RESUELTO (10 Sep 2026)
-
-**Decisión:** Co-rotante, basado en:
-- Literatura: Rol et al. (2020) — fibrilación de celulosa por TSE
-- Estándar industrial: Clextral BIVIS (máquina para papel moneda)
-- Efecto self-wiping (autolimpieza continua) — estrictamente necesario para evitar zonas muertas
-
-**Acciones tomadas:**
-- Se eliminó `mirror()` en código de tornillos → dos tornillos idénticos
-- Se migró eje de 3/8" a cuadrado de 1/4" (6.35mm) para dejar paredes macizas >3.15mm
-- Se reprogramó perfil completo con 16 zonas según Rol et al. (2020)
-- Tren de transmisión V10.1 quedó obsoleto — requiere rediseño para co-rotación
-
-### 4.2 ~~🟡 MEDIO: Eje del tornillo vs eje de la caja~~ — RESUELTO (10 Sep 2026)
-
-**Solución adoptada:** Cuadrado de 1/4" (6.35mm) en todo el eje.
-- Pared maciza >3.15mm en cintura del perfil bilobal (vs 0.70mm con 3/8")
-- Twist elástico de 5°-8° aceptable, absorbido por holgura FDM
-- Simplifica ensamblaje y compatibilidad con todos los componentes
-
-### 4.3 ~~🟡 MEDIO: Perfil de kneading no sigue el estudio~~ — RESUELTO (10 Sep 2026)
-
-**Solución adoptada:** Perfil completo de 16 zonas según Rol et al. (2020):
-- Zona 1: Forward largo (alimentación)
-- Zona 2: Kneading Forward 45° (impregnación)
-- Zona 3: Reverse 45° + Neutral 90° + Reverse corto (fibrilación — crítica)
-- Zona 4: Forward largo (descarga)
-
-### 4.4 🟢 BAJO: Planetario impreso descartado
-
-**Evaluación:**
-Se evaluó un reductor planetario NEMA23 impreso en FDM como alternativa.
-
-**Rechazado por:**
-- Tolerancias de corona interna (agujero dentado impreso en FDM)
-- Backlash excesivo bajo carga continua
-- Riesgo de creep (fluencia bajo esfuerzo sostenido) en uso continuo
-- Ningún ejemplo validado para carga >5 N·m continua
-
-**Alternativas consideradas:**
-1. Reductor planetario comprado (AliExpress/envío internacional)
-2. Motorreductor de gusano (hardware industrial genérico)
-3. Poleas GT2/HTD + correa (sin corona interna)
-
----
-
-## 5. Especificaciones Técnicas del Diseño Actual (TwinLock 253 SP6)
-
-### 5.1 Parámetros Generales
-
-| Parámetro | Valor | Notas |
-|-----------|-------|-------|
-| Distancia entre centros | 25.3mm | Fija, dada por diseño del barril |
-| Eje cuadrado | 1/4" (6.35mm) | Varilla cuadrada estándar |
-| Ángulo de presión | 25° | Evolvente estándar |
-| Backlash engranajes | 0.25mm | `backlashAllowance` |
-| Relación split | 6:1 | Fija (Z54/Z18 × Z24/Z16) |
-| Torque combinado objetivo | 10-15 N·m | Régimen continuo |
-| RPM tornillo objetivo | 50-300 rpm | Ventana operativa |
-
-### 5.2 Rodamientos
-
-| Rodamiento | Especificación | Cantidad | Función |
-|------------|----------------|----------|---------|
-| 51102 | 15×28×9mm | 2 | Empuje axial (uno por eje) |
-| 6001-2Z | 12×28×8mm | 2 | Radial frontal (uno por eje) |
-
-### 5.3 Engranajes
-
-| Pieza | Dientes | Módulo | Ancho | Material | Posición Z |
-|-------|---------|--------|-------|----------|------------|
-| Piñón distribuidor (Z18) | 18 | 1.5 | 14mm | PETG-CF | 84 |
-| Corona compound (Z54) | 54 | 1.5 | 14mm | PETG-CF | 84 |
-| Piñón compound (Z16) | 16 | 1.5 | 16mm | PETG-CF / Acero | 84 |
-| Engranaje salida (Z24) | 24 | 1.5 | 16mm | Acero 20MnCr5 | 40 (L) / 60 (R) |
-
-**Cálculos derivados:**
-- CD entrada-coro: (27 + 81) / 2 = 54mm
-- CD compuesto-salida: (24 + 36) / 2 = 30mm
-- Relación split: (54/18) × (24/16) = 3 × 1.5 = 4.5:1 (corregido a 6:1 con engranajes reales)
-
-### 5.4 Geometría Espacial (Posiciones XY)
-
-| Posición | Coordenadas | Descripción |
-|----------|-------------|-------------|
-| outL | [-12.65, 0] | Eje salida izquierdo |
-| outR | [12.65, 0] | Eje salida derecho |
-| cmpL | [-42.65, 0] | Eje compuesto izquierdo |
-| cmpR | [42.65, 0] | Eje compuesto derecho |
-| input | [0, 52.5] | Piñón distribuidor |
-
-### 5.5 Alturas Z (Apilado Axial)
-
-| Capa | Z (mm) | Componentes |
-|------|--------|-------------|
-| Placa reacción | 0 | Placa metálica 3mm |
-| Rodamiento empuje | 8 | 51102 |
-| Rodamiento radial | 22 | 6001 |
-| Engranaje salida L | 40 | Z24 L |
-| Engranaje salida R | 60 | Z24 R |
-| Distribución | 84 | Z18 + Z54 × 2 |
-| Cierre | 120 | — |
-
-### 5.6 Adaptador de Salida (TL-253-AD)
+### 3.1 Caja de transmisión
 
 | Parámetro | Valor |
 |-----------|-------|
-| Material | AISI 303 |
-| Longitud total | 130mm |
-| Hueco cuadrado | □6.35 H9 × 130mm |
-| Muñón empuje | Ø15 g6 × 10mm (51102) |
-| Muñón radial | Ø12 g6 × 9mm (6001) |
-| Asiento engranaje | Ø12 h7 |
-| Fijación | 2× M4 ISO 4762 + M4×6 prisionero |
+| Arquitectura | Split-power en H, co-rotante |
+| Relación total | **4,5:1** = (54/18) × (24/16) |
+| Etapa 1 | Z18 motor → 2× Z54, CD 54,25 mm |
+| Etapa 2 | Z16 compuesto → Z24 salida, CD 30,25 mm |
+| Módulo / ángulo | 1,5 mm / 25° |
+| Backlash | +0,25 mm en CD |
+| Salidas | x = ±12,65 mm |
+| Compuestos | x = ±42,90 mm |
+| Piñón motor | y = 33,21 mm |
+| Rodamientos | **6703** 17×23×4 mm, 11 uds. |
+| Apilado Z | 16 / 38 / 75 / 91 / 124 mm |
+| Fase de salida | **-7,5° global**; engranajes y adaptadores +7,5° local |
+| Fase de tornillos | izquierdo -7,5°; derecho 82,5° (90° entre sí) |
+| Adaptadores | 4 uds.; Out_R/Cmp_R en placa base (z local 16); Out_L/Cmp_L en placa intermedia (z local 69) |
+| Ejes de compuestos | 2 × 6,35 × 118 mm, x = ±42,90, z local 6…124, 0° |
+| Par de salida | 7,65 N·m con NEMA23 2 N·m (η 0,85) |
+| Límite PETG | ≤ 8 N·m |
 
-### 5.7 Tornillos Extrusores
+**No se usan 51102 ni 6001.** El 6703 no es un rodamiento de empuje; si la extrusión genera empuje axial, agregar un tope o rodamiento axial.
 
-| Parámetro | Valor |
-|-----------|-------|
-| Diámetro exterior | 30.36mm |
-| Diámetro interior | 20.24mm |
-| Pitch | 32mm |
-| Longitud | 110mm |
-| Tipo | Bilobe co-rotante |
-| Material | PETG-CF (impreso) |
-
----
-
-## 6. Componentes Físicos No Impresos
-
-| Componente | Especificación | Cantidad | Notas |
-|------------|----------------|----------|-------|
-| Rodamiento 51102 | 15×28×9mm | 2 | Empuje axial (uno por eje) |
-| Rodamiento 6001-2Z | 12×28×8mm | 2 | Radial frontal (uno por eje) |
-| Varilla cuadrada 1/4" | 6.35mm | 5 | Ejes de entrada, compound L/R, salida L/R |
-| Placa reacción | AISI 304 2mm ó Al 6082 3mm | 1 | Corte láser |
-| Engranajes salida | Z24 m1.5 acero 20MnCr5 | 2 | Corte / SDP-SI / Misumi |
-| Motor NEMA 23 | 2-3 N·m, eje Ø8 | 1 | Stepperonline / local |
-| Tornillería | ISO 4762 M3×12 / M4×16 / M4×20 | Varios | Caja métrica 12.9 |
-| Grasa | Litio EP2, compatible PETG | 1 | SKF LGMT 2 o similar |
-
----
-
-## 7. Parámetros de Impresión (Referencia)
+### 3.2 Tornillos
 
 | Parámetro | Valor |
 |-----------|-------|
-| Material | PETG-CF (engranajes) / PLA (prototipos) |
-| Impresora | FDM, boquilla 0.4mm |
-| Resolución | 0.2mm |
-| Infill | 100% (engranajes) / 35-45% (estructura) |
-| Perímetros | 6+ (especialmente en componentes bajo carga) |
-| Temperatura | 250°C boquilla / 80°C cama |
-| Ambiente | Recinto cerrado, filamento seco |
+| Tipo | Bilobular co-rotante, tangencial |
+| OD nominal | 25,3 mm |
+| OD efectivo | 24,9 mm |
+| ID | 15,3 mm |
+| CD entre tornillos | 25,3 mm |
+| Holgura entre tornillos | 0,4 mm |
+| Holgura radial al barril | 0,9 mm |
+| Longitud | 537,65 mm |
+| L/D | 21,25 |
+| Pasos | 50,60 / 37,95 / 18,98 mm (2,0D / 1,5D / 0,75D) |
+| Zonas | 16 fases; 3 reverse + 1 forward + 1 neutral |
+| Bloques de impresión | 4: 139,15 / 151,81 / 151,81 / 94,88 mm |
+| Eje | Cuadrado 1/4" (6,35 mm) |
+| Material | PETG-CF |
+
+### 3.3 Barril
+
+| Parámetro | Valor |
+|-----------|-------|
+| Secciones | 3 × (TOP + BOTTOM): 180 / 180 / 178 mm |
+| Longitud total | 538 mm |
+| Bore | 2 × Ø26,7 mm (`r_bore=13,0`, `bore_comp=0,35`) |
+| CD | 25,3 mm |
+| Pared radial | 10 mm |
+| Eje | Cuadrado 6,35 mm + 0,3 mm |
+| Tolva | Boca ~55×42 mm, paso Ø36 mm |
+| Salida del barril | Brida 120×80 con 6×M6 (z=532…538) |
+| Salida fase 1 | Portador con placas de die 8 / 6 / 4 mm; integrado al ensamble total |
+
+**La placa de salida antigua (`08_placa_salida`, 2×Ø18 mm) está obsoleta
+y ya no se incluye en el ensamble.** El portador de dado
+(`models/portador/portador.scad`) la reemplaza y aloja placas
+intercambiables de 8, 6 y 4 mm con tapa atornillada. Falta imprimirlo y
+probarlo con presión.
+
+### 3.4 Accionamiento y materiales
+
+| Componente | Especificación | Notas |
+|------------|----------------|-------|
+| Motor | NEMA23 2 N·m, eje 8 × 26 mm, directo al gearbox | Piñón barrenado Ø8,2 mm; 7,65 N·m de salida |
+| Alternativa | AC 0,75 kW + VFD + reductor 8–12:1 | Mejor para operación continua |
+| Limitador de par | 7,5–8 N·m | Protege engranajes PETG |
+| Reversa / jog | 10–20 rpm | Para atascos |
+| Termocupla | Zona de kneading | ≤50 °C |
+| Ventilador | Enfriamiento del barril | Obligatorio en lotes largos |
+| Rodamientos | 6703 17×23×4 | 11 uds. |
+| Varilla cuadrada | 1/4" (6,35 mm) | 4 tramos: 2×140 mm (salidas) + 2×118 mm (compuestos) |
+| Impresión | PETG-CF, 0,4 mm, capa 0,2 mm | 6+ perímetros, 100 % en engranajes |
+
+### 3.5 Ensamble total y marco
+
+| Parámetro | Valor |
+|-----------|-------|
+| Marco | Placa vertical 200×160×18 mm + 2 vigas 40×60×590 mm |
+| Mesa | y = -100; eje del barril en y = 0 |
+| Pata trasera | 80×48×30 mm, z = -198…-168 |
+| Longitud total | 818 mm (z = -244…574) |
+| Ancho / alto | 200 mm / 185 mm |
+| Volumen | 7,6979 L sin tornillos extrusores; 8,0065 L con ellos |
+| Unión caja ↔ placa ↔ tapa ↔ barril | 6×M6×50 + arandela de 1 mm; tuerca nylock en bolsillo z = 0…6 |
+| Unión placa ↔ vigas | 4×M6×60 en y = -61 y -74 |
+| Apoyo del barril | Bridas sobre las vigas + abrazaderas (no modeladas) |
+| Fase | -7,5° global en las salidas; compuestos a 0° |
+| Ejes de salida | 2×6,35×140 mm, z = -115…+25 |
+| Ejes de compuestos | 2×6,35×118 mm, z local 6…124 |
+
+**Validación:** ensamble total watertight, `Simple: yes`. Intersecciones
+sólo por solapes de contacto de 0,02 mm: caja×marco 502,886 mm³;
+caja×tornillos 9,537 mm³; barril×marco 303,517 mm³; portador×marco
+57,569 mm³. El resto de los pares da 0. Ver
+`models/assembly_total_README.md` para el plano de corte, la BOM y la
+secuencia de montaje.
 
 ---
 
-## 8. Estructura de Archivos
+## 4. Limitaciones y riesgos
 
-```
-models/tren_de_transmicion/
-├── ESTADO_PROYECTO.md                    ← Este documento
-├── Tornillos_Corotantes_V2.scad          ← Tornillos co-rotantes (10 Sep 2026)
-├── barril_v4_corotante.scad              ← Barril V4 actualizado (10 Sep 2026)
-├── grok/                                 ← TwinLock 253 SP6 (React + Three.js)
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── layout/AppShell.tsx        ← UI principal con RPM slider
-│   │   │   ├── viewport/DriveCanvas.tsx   ← Visor 3D interactivo
-│   │   │   ├── openscad/PartsSelector.tsx ← Selector de piezas para exportar
-│   │   │   └── panels/                    ← Paneles de documentación
-│   │   ├── lib/
-│   │   │   ├── design.ts                  ← Fuente única de verdad del diseño
-│   │   │   ├── gear-geometry.ts           ← Generador de perfiles evolventes
-│   │   │   ├── gear-loads.ts              ← Cálculo de esfuerzos Lewis/Hertz
-│   │   │   └── bom.ts                     ← Lista de materiales
-│   │   └── openscad/                      ← Sistema de exportación OpenSCAD
-│   │       ├── export.ts                  ← Función principal de exportación
-│   │       ├── parts-list.ts              ← Lista de 22 componentes disponibles
-│   │       ├── utils/parameters.ts        ← Parámetros del diseño
-│   │       └── components/                ← Generadores de código OpenSCAD
-│   │           ├── Gear.ts                ← Engranajes evolventes
-│   │           ├── Bearing.ts             ← Rodamientos 51102/6001
-│   │           ├── Shaft.ts               ← Ejes cuadrados y acoples
-│   │           ├── Screw.ts               ← Tornillos extrusores
-│   │           └── Housing.ts             ← Carcasa (referencia)
-│   └── package.json
-├── ultimo/
-│   ├── V8.1(gemini).scad                 (12.6 KB, versión Gemini)
-│   ├── tren_v8_2_completo/               (25 Ago 2026)
-│   ├── tren_v8_3_completo/               (25 Ago 2026)
-│   ├── tren_v9_0_completo/               (27 Ago 2026)
-│   ├── tren_v10_0_completo/              (27 Ago 2026)
-│   └── tren_v10_1_completo/              (27 Ago 2026) ← OBSOLETO
-└── stls_final/                           (STLs de otras versiones)
-```
-
-### Archivos Generados (OpenSCAD)
-
-El sistema de exportación genera archivos `.scad` con los siguientes componentes:
-
-| Categoría | Piezas | Imprimibles |
-|-----------|--------|-------------|
-| Engranajes | 7 | 7/7 |
-| Rodamientos | 4 | 0/4 (comprados) |
-| Ejes y Acoples | 6 | 6/6 |
-| Tornillos | 2 | 0/2 (comprados) |
-| Carcasa | 2 | 2/2 |
-| Otros | 1 | 0/1 (láser) |
-| **Total** | **22** | **15/22** |
+- **Tangencial, no intermeshing:** no hay self-wiping. La pulpa se pega y hay que limpiar entre lotes.
+- **PETG:** Tg ~75 °C. Proceso ≤50 °C; los engranajes son el fusible mecánico.
+- **Eje de 6,35 mm:** sobre 537 mm flexiona (~12 mm a 100 N, ~1,2 mm a 10 N). Fase 2: eje de 10 mm o acortar a 300–350 mm.
+- **Relación 4,5:1:** para 100–150 rpm en los tornillos, el motor debe girar 450–675 rpm. Verificar la curva del NEMA23 a esa velocidad; si no llega, usar AC + VFD o aceptar 30–60 rpm y ajustar el proceso.
+- **Alimentación:** el canal es de ~5 mm; la pulpa debe ir a 5–10 mm y 20–25 % de consistencia. Si no, patina o hace puente.
+- **Die:** sin restricción no hay presión; con die muy cerrado se atasca. Empezar en 8 mm.
+- **Adaptador impreso:** el `bearing_adapter` es PETG; con pulpa se desgasta. Para servicio, hacerlo en acero o pasar a 6001 con rediseño de alojamientos.
+- **Empuje axial:** el 6703 es radial; el collar es el camino de empuje. Evaluar una arandela de acero de 1 mm y el desgaste PETG-PETG.
+- **Abrazaderas del barril:** el marco no las modela. Sin 2–3 abrazaderas por viga, el barril sólo apoya por las bridas y el portador.
+- **M6×50 + nylock:** la punta llega a z = +5 y el bolsillo termina en z = +6. Verificar que alcance el inserto de nylon de la tuerca; corregir con arandela más fina o rebajando el bolsillo, no alargando el tornillo a ciegas.
+- **Ejes de compuestos impresos:** si se imprimen en PETG para probar, usarlos sólo en vacío; para pulpa, varilla cuadrada de acero.
+- **`acople_directo.scad`:** solo para giros en vacío; no usarlo con pulpa.
 
 ---
 
-## 9. Próximos Pasos
+## 5. Próximos pasos
 
-### Completados (16 Sep 2026)
-1. ✅ **Decidir dirección de rotación** — Co-rotante confirmado
-2. ✅ **Resolver eje del tornillo** — Cuadrado 1/4" (6.35mm)
-3. ✅ **Ajustar perfil de kneading** — 16 zonas según Rol et al. (2020)
-4. ✅ **Actualizar tornillos** — Eliminar mirror(), dos piezas idénticas
-5. ✅ **Segmentación DFAM** — 4 bloques de impresión (94-151mm)
-6. ✅ **Visor 3D interactivo** — React + Three.js (TwinLock 253)
-7. ✅ **Sistema de exportación OpenSCAD** — 22 componentes, selector de piezas
-8. ✅ **Eliminar carcasa del modelo 3D** — Simplificación del ensamble
-9. ✅ **Documentación actualizada** — BOM, Planos, DFAM, Arquitectura
+### Fase 1 — que arranque (ahora)
 
-### Pendientes
-10. **Validar código OpenSCAD** — Verificar que genera piezas correctas en OpenSCAD
-11. **Imprimir prototipo** — Engranajes de prueba con configuración actual
-12. **Medir holguras reales** — Verificar tolerancias FDM vs especificación
-13. **Recalcular esfuerzos** — Con nueva configuración de engranajes
-14. **Optimizar geometría** — Ajustar parámetros según resultados de impresión
-15. **Integrar motor** — Acople directo NEMA 23 al piñón distribuidor
+1. Picar la pulpa cocida a 5–10 mm y escurrir a 20–25 %.
+2. Agregar tolva con crammer o pistón manual.
+3. Bolsillos de tuerca M6: **hecho y validado** (6 mm de profundidad, 11,8 mm entre vértices; dummy 11,55 × 5,9 mm sin interferencia en las seis mitades). Acceso inferior **resuelto** con base separada: se eliminó `base_continua`; las probetas dan abierto en z_local=12/20/100 y los 6 tornillos de las uniones z=180/360 ya se pueden insertar desde la cara interior.
+4. Portador de dado: **hecho** en `models/portador/portador.scad` (cuerpo 120×80×25, conos Ø26,7→Ø16, bolsillo 90×30×10, placas 8/6/4, tapa con 2×Ø16). Validado watertight y sin colisiones; ver `models/portador/README.md`. Falta imprimir y probar con presión. Ya está integrado en `models/assembly_total.scad`.
+5. Ensamble total: imprimir las piezas individuales (no el STL del ensamble), armar marco, caja, barril y portador según `models/assembly_total_README.md` §7. Verificar la fase **-7,5° global** de las salidas y que los 2 ejes de compuestos (6,35 × 118 mm, x = ±42,90) entren a 0°.
+6. Fijar el barril a las vigas con 2–3 abrazaderas por viga (no modeladas) y una junta de goma/fieltro. Revisar que las 6 tuercas nylock de los M6×50 agarren el inserto de nylon: la punta llega a z = +5 y el bolsillo termina en z = +6.
+7. Instalar limitador de par 7,5–8 N·m, reversa/jog, termocupla y ventilador.
+8. Usar NEMA23 2 N·m directo (4,5:1); no usar la correa 3:1.
+9. Lote A: agua + pulpa sin tela, 100 rpm, die 8 mm.
+10. Lote B: pulpa con tela al 10–20 %, 100–150 rpm.
+11. Criterio de salida: 10 min sin atasco, ≤50 °C, ≤8 N·m.
 
----
+### Fase 2 — que fibrile
 
-## 10. Actualización: Rediseño del Subsistema de Tornillos Extrusores (10 Sep 2026)
+1. Eje de 10 mm o acortar a 300–350 mm.
+2. Rodamientos 6200/6201 en alojamientos metálicos; bancada rígida.
+3. Ajustar pasos: alimentación 1,0–1,2D, transporte 0,8–1,0D, zona de compresión.
+4. 3–4 pasadas, midiendo CSF y hoja.
+5. Criterio: CSF baja y se estabiliza; hoja sin grumos.
 
-**Módulos afectados:** `Tornillos_Corotantes_V2.scad` y `barril_v4_corotante.scad`
+### Fase 3 — que sirva como billete
 
-### 10.1 Evolución Topológica: De Contrarrotante a Co-Rotante
-
-**El Cambio:** Se eliminó el comando `mirror()` en el código de los tornillos. Ahora se imprimen dos tornillos exactamente idénticos y se montan desfasados a 90° en la máquina para que giren en el mismo sentido (Co-rotantes).
-
-**Justificación:** Basado en la literatura de extrusión de celulosa (Rol et al., 2020) y los estándares industriales (Clextral BIVIS para papel moneda), el diseño co-rotante intermeshing es estrictamente necesario para lograr el efecto "self-wiping" (autolimpieza continua), evitando zonas muertas donde la pulpa se pudra o se atasque.
-
-### 10.2 Dimensión del Eje Central: Migración a Cuadrado de 1/4" (6.35 mm)
-
-**El Cambio:** Se descartó el uso de varillas de 3/8" (9.52 mm) y ejes hexagonales de 8 mm. Todos los huecos pasantes se parametrizaron para varilla cuadrada estándar de 1/4 de pulgada.
-
-**Justificación Estructural:** Un eje de 3/8" dejaba una pared de plástico de apenas ~0.70 mm en la "cintura" del perfil bilobal (radio de raíz 7.65 mm), lo que garantizaba el estallido del PETG bajo torque. El eje de 1/4" reduce la diagonal interna, dejando una pared maciza de >3.15 mm. La flexibilidad elástica torsional de la varilla de 1/4" (twist de 5°-8°) se considera aceptable y absorbida por la holgura del sistema FDM.
-
-### 10.3 Geometría de Amasado (Kneading Blocks): Discos Planos
-
-**El Cambio:** Se eliminaron las transiciones suaves (rampas generadas por `hull()`) entre discos de amasado, reemplazándolas por discos planos apilados con un solape microscópico (0.02 mm) para asegurar la integridad de la malla CGAL (manifoldness).
-
-**Justificación Funcional:** Un bloque de amasado lofteado actúa como una rosca defectuosa, haciendo que la pulpa resbale. Los discos planos y afilados son necesarios para crear "zonas de pellizco" (nip regions) contra el barril (diámetro interno 26.7 mm), triturando físicamente las fibras de algodón.
-
-### 10.4 Perfil Termomecánico Científico (16 Zonas)
-
-Se reprogramó la longitud y secuencia de los tornillos basándose estrictamente en el estudio de Rol et al. (2020) para fibrilación óptima. La longitud total se incrementó a **537.63 mm (L/D = 21.25:1)**.
-
-| Zona | Función | Tipo | Justificación |
-|------|---------|------|---------------|
-| Z1 | Alimentación | Transporte paso largo (Forward) | Maximiza captación volumétrica de tela sin generar cizalla prematura |
-| Z2 | Impregnación | Kneading Forward 45° | Mezcla química alcalina suave que empuja el material, sin acortar la fibra |
-| Z3 | Fibrilación (Crítica) | Reverse 45° + Neutral 90° + Reverse corto | Genera "pulsos de presión" masivos que deshilachan la celulosa a nivel microscópico sin degradación térmica |
-| Z4 | Descarga | Transporte paso largo | Evacúa el material estabilizado hacia el dado sin sobre-procesarlo |
-
-### 10.5 Adaptación para Manufactura Aditiva (Segmentación)
-
-**El Cambio:** El modelo de 537.6 mm se programó para cortarse automáticamente en **4 Bloques de Impresión** (seg1 a seg4) de entre 94 mm y 151 mm de altura.
-
-**Justificación (DFAM):** Evita el bamboleo (Z-wobble) en impresoras de pórtico como la Ender-3 Pro, maximizando la calidad de capa. Los cortes matemáticos coinciden con ángulos ortogonales (0° y 270°), garantizando que los bloques encajen en el eje cuadrado de 1/4" manteniendo la continuidad espiral de los lóbulos de forma natural.
-
-### 10.6 Impacto en Sistemas Adyacentes
-
-- **Barril Extrusor:** Se actualizó a V4 (Longitud total 538 mm) y se integraron rodamientos axiales 51102 con collares de empuje adaptados a 1/4"
-- **Tren de Transmisión:** El diseño V10.1 (contrarrotante) quedó oficialmente obsoleto. La nueva arquitectura debe contemplar el giro síncrono (co-rotante) y acoples de 1/4"
+1. Blanqueo lado a lado: sin blanquear vs percarbonato/H₂O₂.
+2. Comparar blancura, opacidad, tracción y plegado.
+3. Decidir si hace falta intermeshing o acero.
 
 ---
 
-## 11. Referencias
+## 6. Documentación y archivos
 
-- **Rol et al. (2020)** — "Fibrillation of cellulose by twin-screw extrusion" — Referencia principal para perfiles de tornillo
-- **Freville et al. (2024/2025)** — Seguimientos del mismo grupo de investigación
-- **Clextral BIVIS** — Extrusor de referencia para papel moneda (co-rotante, intermeshing, self-wiping)
-- **LUDOVIC** — Software de referencia para modelado de TSE co-rotantes (desarrollado por Bruno Vergnes)
-- **Catálogo NTN/ISK/MISUMI** — Especificaciones de rodamientos
+| Archivo | Rol |
+|---------|-----|
+| `models/assembly_total.scad` | Ensamble total: marco, caja, barril, portador, ejes y flags de exportación |
+| `models/assembly_total_README.md` | Plano de corte, estaciones z, BOM y secuencia de montaje |
+| `models/tren_de_transmicion/twinlock_253_v16_2.scad` | Gearbox, fuente de verdad |
+| `models/tren_de_transmicion/TwinLock-253-Documentacion.md` | Documentación del gearbox |
+| `models/tornillo/Tornillos_Modulares_V2.scad` | Tornillos actuales |
+| `models/barril/barril.scad` | Barril actual |
+| `models/barril/README.md` | Fabricación del barril |
+| `models/portador/portador.scad` | Portador de dado 8/6/4 |
+| `models/portador/README.md` | Fabricación y montaje del portador |
+| `models/portador/assembly_barril.scad` | Subensamble barril + portador |
+| `models/tren_de_transmicion/acople_directo.scad` | Solo prueba en vacío |
+| `especificaciones/COCCION_ALCALINA.md` | Cocción (soda ash; adaptar si se usa bicarbonato) |
+| `especificaciones/BLANQUEO.md` | Blanqueo con H₂O₂ |
+| `especificaciones/CALIDAD.md` | Criterios de calidad |
+| `referencias/proceso-tela-papel.md` | Proceso de referencia; desactualizado en dimensiones |
 
+**Notas:**
+- El STL de `models/assembly_total.scad` es de visualización/validación; incluye motor dummy y ejes. Para imprimir, usar los STL individuales del gearbox, el barril y el portador.
+- `twinlock-253.json` era la config del visor; quedó obsoleto.
+- Los STL de `stls_transmision/` e `imprimir/` pueden estar desactualizados; regenerarlos desde el `.scad`.
 
+---
+
+## 7. Historial breve
+
+| Versión | Cambio | Estado |
+|---------|--------|--------|
+| V10.0/V10.1 | 6002ZZ → 6703; ancho 4 mm | Superado |
+| V16.2 | Stack 16/38/75/91/124; 4,5:1; 6703; standalone | **Actual (base)** |
+| Ensamble total V1 | Marco placa 18 mm + vigas; caja/barril/portador integrados; fase -7,5°; 4 tramos de varilla cuadrada | **Actual** |
+| Tornillos V2 | Co-rotante, 16 fases, 4 bloques, eje 1/4" | **Actual** |
+| Docs 6:1 / 6001 | Ratio y rodamiento incorrectos | **Obsoleto** |
+
+La relación correcta siempre fue **(54/18) × (24/16) = 4,5:1**. Las versiones que decían 6:1 correspondían a otro juego de engranajes y no al standalone.
+
+---
+
+## 8. Referencias
+
+- **Rol et al. (2020)** — “Fibrillation of cellulose by twin-screw extrusion”.
+- **Freville et al. (2024/2025)** — Seguimientos del mismo grupo.
+- **Clextral BIVIS** — Extrusor de referencia para papel moneda (co-rotante, intermeshing, self-wiping). **No es la geometría de este prototipo.**
+- **LUDOVIC** — Software de referencia para modelado de TSE co-rotantes.
+- **Catálogo NTN/ISK/MISUMI** — Especificaciones de rodamientos.

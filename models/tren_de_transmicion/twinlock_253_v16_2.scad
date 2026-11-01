@@ -12,10 +12,10 @@
    - Arquitectura Co-Rotante. Engranajes 100% integrados.
    ========================================================== */
 
-part = "assembly"; // [assembly, base_plate, mid_plate, motor_plate, spacer_base_front, pillar_lower, pillar_upper, comp_corona, comp_pinion_L, comp_pinion_R, out_gear_L, out_gear_R, motor_pinion, bearing_adapter, motor_cradle]
+part = "assembly"; // [assembly, base_plate, mid_plate, motor_plate, spacer_base_front, pillar_lower, pillar_upper, comp_corona, comp_pinion_L, comp_pinion_R, out_gear_L, out_gear_R, motor_pinion, bearing_adapter, compound_shaft, motor_cradle]
 
 /* --- PARÁMETROS GENERALES --- */
-motor_shaft_d = 5.2;      
+motor_shaft_d = 8.2;      // NEMA23 eje 8 mm (0,2 mm de holgura)
 motor_body_d = 57;        
 motor_bolt_bc = 47.14;    
 motor_bolt_d = 5.5;  
@@ -177,13 +177,23 @@ module p_motor_pinion() {
             translate([0, 0, -10]) cylinder(d=bearing_id - 0.1, h=4.01, $fn=64); // Enchufe de 4mm
         }
         
-        // Agujero pasante para el eje del Motor (5.2mm)
+        // Agujero pasante para el eje del Motor (8.2mm)
         translate([0,0,-12]) cylinder(d=motor_shaft_d, h=60, $fn=32); 
         
         // Agujeros para Prisioneros M3 a 90 grados (Para agarrar el motor con fuerza)
         translate([0, 0, trans_width + 7.5]) rotate([0, 90, 0]) cylinder(d=2.5, h=40, center=true, $fn=16); 
         translate([0, 0, trans_width + 7.5]) rotate([90, 0, 0]) cylinder(d=2.5, h=40, center=true, $fn=16);
     }
+}
+
+// EJE CUADRADO DE LOS COMPUESTOS
+// Conecta el piñón Z16 (piso 1/2) con la corona Z54 (piso 3) en cada
+// posición x = ±42,90. Va de z=6 (rodamiento base) a z=124 (placa motor),
+// 118 mm. Sin este eje la corona no transmite par al piñón compuesto.
+module p_compound_shaft() {
+    s = square_shaft_side;
+    translate([-s/2, -s/2, 6])
+        cube([s, s, Z_motor_pl - 6], center=false);
 }
 
 // LOS 4 ACOPLES SUELTOS
@@ -274,6 +284,12 @@ module p_spacer_base_front() {
             translate([x, -24, 15]) rotate([90,0,0]) cylinder(d=6.5, h=40, center=true, $fn=16); 
             translate([x, -24, 15]) rotate([90,0,0]) cylinder(d=15, h=18, $fn=32); 
         }
+        // Alojamiento de las cabezas M6 que entran desde el interior de la
+        // caja. La fila delantera está en y=-25, en el borde del bloque; se
+        // rebaja una media luna Ø13 en la cara inferior (z=0..9) para que la
+        // arandela y la cabeza no apoyen en el separador.
+        for (x = [-45, 0, 45])
+            translate([x, -25, -1]) cylinder(d=13, h=10.01, $fn=32);
     }
 }
 
@@ -307,7 +323,9 @@ module dummy_bearing() { color("silver") difference() { cylinder(d=23, h=4, $fn=
 /* ==========================================================
    VISTA DE ENSAMBLAJE
    ========================================================== */
-if (part == "assembly") {
+// El ensamble total incluye este archivo con TWINLOCK_NO_RENDER=true
+// para reutilizar variables y módulos sin duplicar la geometría.
+if (part == "assembly" && is_undef(TWINLOCK_NO_RENDER)) {
     color("gray") p_base_plate(); color("darkgray") translate([0,0,Z_mid_pl]) p_mid_plate(); color("silver") translate([0,0,Z_motor_pl]) p_motor_plate();
     color("white") { for(pt = pillar_coords) translate([pt[0], pt[1], 10]) p_pillar_lower(); for(pt = pillar_coords) translate([pt[0], pt[1], Z_mid_pl + 10]) p_pillar_upper(); }
     color("dimgray") translate([0,0,10]) p_spacer_base_front(); color("darkolivegreen") translate([0,0,Z_cradle + 10]) p_motor_cradle(); 
@@ -317,9 +335,12 @@ if (part == "assembly") {
     for(pos = [pos_Cmp_L, pos_Cmp_R]) { translate(pos) translate([0,0,Z_motor_pl]) dummy_bearing(); }
     translate(pos_Mot) translate([0,0,Z_mid_pl + 10 - bearing_w]) dummy_bearing();
     
-    translate(pos_Out_R) translate([0,0,16]) rotate([180,0,0]) color("yellow") p_bearing_adapter();
+    // Adaptador en el rodamiento opuesto al cuello integrado del engranaje.
+    // Los adaptadores de salida giran +7,5° para coincidir con el hueco
+    // cuadrado de out_gear_L/R.
+    translate(pos_Out_R) translate([0,0,16]) rotate([0,0,7.5]) rotate([180,0,0]) color("yellow") p_bearing_adapter();
     translate(pos_Cmp_R) translate([0,0,16]) rotate([180,0,0]) color("yellow") p_bearing_adapter();
-    translate(pos_Out_L) translate([0,0,Z_mid_pl - 6]) color("yellow") p_bearing_adapter();
+    translate(pos_Out_L) translate([0,0,Z_mid_pl - 6]) rotate([0,0,7.5]) color("yellow") p_bearing_adapter();
     translate(pos_Cmp_L) translate([0,0,Z_mid_pl - 6]) color("yellow") p_bearing_adapter();
     
     color("DodgerBlue") translate(pos_Out_L) translate([0,0,Z_lvl1]) rotate([0,0,360/(teeth_out*2)]) p_out_gear_L();
@@ -328,11 +349,17 @@ if (part == "assembly") {
     color("OrangeRed")  translate(pos_Cmp_R) translate([0,0,Z_lvl2]) p_comp_pinion_R();
     color("LimeGreen")  translate(pos_Cmp_L) translate([0,0,Z_lvl3]) p_comp_corona();
     color("ForestGreen")translate(pos_Cmp_R) translate([0,0,Z_lvl3]) p_comp_corona();
-    color("Gold")       translate(pos_Mot) translate([0,0,Z_lvl3]) rotate([0,0,360/(teeth_mot*2)]) p_motor_pinion();
+    color("Gold")       translate(pos_Mot) translate([0,0,Z_lvl3]) p_motor_pinion(); // Fase 0; 10° chocaba con ambas coronas
+
+    // Ejes cuadrados de los compuestos: unen el piñón Z16 con la corona Z54.
+    for (pos = [pos_Cmp_L, pos_Cmp_R])
+        translate(pos) color("silver") p_compound_shaft();
 
 } else if (part == "out_gear_L") p_out_gear_L(); else if (part == "out_gear_R") p_out_gear_R();
 else if (part == "comp_pinion_L") p_comp_pinion_L(); else if (part == "comp_pinion_R") p_comp_pinion_R();
 else if (part == "comp_corona") p_comp_corona(); else if (part == "motor_pinion") p_motor_pinion();
 else if (part == "base_plate") p_base_plate(); else if (part == "mid_plate") p_mid_plate(); else if (part == "motor_plate") p_motor_plate();
-else if (part == "bearing_adapter") p_bearing_adapter(); else if (part == "spacer_base_front") p_spacer_base_front();
+else if (part == "bearing_adapter") p_bearing_adapter(); else if (part == "compound_shaft") p_compound_shaft();
+else if (part == "spacer_base_front") p_spacer_base_front();
 else if (part == "pillar_lower") p_pillar_lower(); else if (part == "pillar_upper") p_pillar_upper();
+else if (part == "motor_cradle") p_motor_cradle();

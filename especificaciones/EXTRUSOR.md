@@ -1,5 +1,7 @@
 # Diseño de Extrusor de Doble Tornillo — Planos de Ingeniería
 
+> **OBSOLETO (30 Oct 2026):** Esta especificación describe un diseño de laboratorio de 20 mm en acero inoxidable, con perfil intermeshing. **No corresponde a la máquina actual.** La fuente de verdad es `models/tren_de_transmicion/twinlock_253_v16_2.scad` y el estado vigente está en `models/tren_de_transmicion/ESTADO_PROYECTO.md` (PETG, 25,3 mm, tangencial, 4,5:1, 6703).
+
 ## Objetivo
 Diseñar y construir un extrusor de doble tornillo co-rotativo artesanal, escala laboratorio, para refinar fibra de algodón destinada a papel de billetes.
 

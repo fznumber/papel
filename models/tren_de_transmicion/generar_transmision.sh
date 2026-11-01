@@ -1,26 +1,41 @@
 #!/bin/bash
 
-# Nombre de tu archivo OpenSCAD (cambia esto si tu archivo se llama distinto)
-ARCHIVO="Transmision_V12.scad"
+# Genera los STLs individuales de la caja TwinLock-253 V16.2.
+# Uso: ./generar_transmision.sh
+# Requiere OpenSCAD en el PATH.
+
+ARCHIVO="twinlock_253_v16_2.scad"
 CARPETA_SALIDA="stls_transmision"
 
-# Crear la carpeta de salida si no existe
 mkdir -p "$CARPETA_SALIDA"
 
 echo "==================================================="
-echo " Generando STLs de la Caja de Transmisión (Ubuntu) "
+echo " Generando STLs de la Caja TwinLock-253 V16.2      "
 echo "==================================================="
 
-# Lista de todas las piezas individuales de la V12.1
-PIEZAS=("base_plate" "mid_plate" "motor_plate" "spacer_base_front" "pillar_lower" "pillar_upper" "comp_corona" "comp_pinion" "out_gear" "motor_pinion" "bearing_adapter" "motor_cradle")
+PIEZAS=(
+  "base_plate"
+  "mid_plate"
+  "motor_plate"
+  "spacer_base_front"
+  "pillar_lower"
+  "pillar_upper"
+  "comp_corona"
+  "comp_pinion_L"
+  "comp_pinion_R"
+  "out_gear_L"
+  "out_gear_R"
+  "motor_pinion"
+  "bearing_adapter"
+  "compound_shaft"
+  "motor_cradle"
+)
 
-# Bucle para generar cada STL
 for p in "${PIEZAS[@]}"; do
     echo "Exportando -> ${CARPETA_SALIDA}/${p}.stl ..."
-    # Ejecuta OpenSCAD por consola, pasando la variable 'part'
     openscad -o "${CARPETA_SALIDA}/${p}.stl" -D "part=\"${p}\"" "$ARCHIVO"
 done
 
 echo "==================================================="
-echo " ¡Todos los 12 STLs generados con éxito!           "
+echo " STLs generados en ${CARPETA_SALIDA}/               "
 echo "==================================================="
