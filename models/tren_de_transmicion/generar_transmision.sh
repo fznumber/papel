@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# Genera los STLs individuales de la caja TwinLock-253 V16.2.
+# Genera los STLs individuales de la caja TwinLock-253 V16.4 (varilla cuadrada).
 # Uso: ./generar_transmision.sh
 # Requiere OpenSCAD en el PATH.
 
-ARCHIVO="twinlock_253_v16_2.scad"
+ARCHIVO="twinlock_253_v16_4.scad"
 CARPETA_SALIDA="stls_transmision"
 
 mkdir -p "$CARPETA_SALIDA"
 
 echo "==================================================="
-echo " Generando STLs de la Caja TwinLock-253 V16.2      "
+echo " Generando STLs de la Caja TwinLock-253 V16.4      "
 echo "==================================================="
 
 PIEZAS=(

@@ -2,9 +2,9 @@
 
 **Última actualización:** 31 Octubre 2026
 
-**Versión mecánica:** TwinLock-253 V16.2 + ensamble total V1
+**Versión mecánica:** TwinLock-253 V16.4 + ensamble total V1
 
-**Fuente de verdad:** `models/tren_de_transmicion/twinlock_253_v16_2.scad`
+**Fuente de verdad:** `models/tren_de_transmicion/twinlock_253_v16_4.scad`
 
 **Repositorio:** https://github.com/fznumber/papel
 
@@ -22,12 +22,12 @@ El proyecto es un extrusor de doble tornillo co-rotante para fibrilar pulpa de a
 
 | Subsistema | Archivo | Estado |
 |------------|---------|--------|
-| Caja de transmisión | `twinlock_253_v16_2.scad` | V16.2 watertight, 4,5:1; adaptadores opuestos y 2 ejes de compuestos |
+| Caja de transmisión | `twinlock_253_v16_4.scad` | V16.4 watertight, 4,5:1; adaptadores opuestos y 2 ejes de compuestos |
 | Tornillos | `models/tornillo/Tornillos_Modulares_V2.scad` | Válido, tangencial, 537,65 mm |
 | Barril | `models/barril/barril.scad` | V4.3; ensamble, collar y tuercas corregidos; base separada |
 | Portador de dado | `models/portador/portador.scad` | V1 watertight; placas 8/6/4; integrado al ensamble total |
 | Ensamble total | `models/assembly_total.scad` | Watertight; marco + caja + barril + portador + ejes; 200×185×818 mm |
-| Adaptador de salida | `twinlock_253_v16_2.scad` → `bearing_adapter` | Válido para 6703; 4 uds. |
+| Adaptador de salida | `twinlock_253_v16_4.scad` → `bearing_adapter` | Válido para 6703; 4 uds. |
 | Acople directo | `acople_directo.scad` | Solo prueba en vacío; no usar con pulpa |
 | Config del visor | `twinlock-253.json` | Obsoleto; ignorar o borrar |
 
@@ -145,6 +145,7 @@ secuencia de montaje.
 - **Tangencial, no intermeshing:** no hay self-wiping. La pulpa se pega y hay que limpiar entre lotes.
 - **PETG:** Tg ~75 °C. Proceso ≤50 °C; los engranajes son el fusible mecánico.
 - **Eje de 6,35 mm:** sobre 537 mm flexiona (~12 mm a 100 N, ~1,2 mm a 10 N). Fase 2: eje de 10 mm o acortar a 300–350 mm.
+- **Varilla cuadrada de construcción:** la barra de 1/4" disponible no es recta. Enderezarla con cuidado (mordaza + comparador, sin martillar las caras) hasta ≤0,2 mm de desviación en 118 mm antes de montarla en los compuestos. Una barra torcida carga los rodamientos 6703 y desalinea la fase. Si no se logra enderezar, usar la variante V16.3 de varilla redonda con planos fresados.
 - **Relación 4,5:1:** para 100–150 rpm en los tornillos, el motor debe girar 450–675 rpm. Verificar la curva del NEMA23 a esa velocidad; si no llega, usar AC + VFD o aceptar 30–60 rpm y ajustar el proceso.
 - **Alimentación:** el canal es de ~5 mm; la pulpa debe ir a 5–10 mm y 20–25 % de consistencia. Si no, patina o hace puente.
 - **Die:** sin restricción no hay presión; con die muy cerrado se atasca. Empezar en 8 mm.
@@ -195,7 +196,7 @@ secuencia de montaje.
 |---------|-----|
 | `models/assembly_total.scad` | Ensamble total: marco, caja, barril, portador, ejes y flags de exportación |
 | `models/assembly_total_README.md` | Plano de corte, estaciones z, BOM y secuencia de montaje |
-| `models/tren_de_transmicion/twinlock_253_v16_2.scad` | Gearbox, fuente de verdad |
+| `models/tren_de_transmicion/twinlock_253_v16_4.scad` | Gearbox, fuente de verdad |
 | `models/tren_de_transmicion/TwinLock-253-Documentacion.md` | Documentación del gearbox |
 | `models/tornillo/Tornillos_Modulares_V2.scad` | Tornillos actuales |
 | `models/barril/barril.scad` | Barril actual |
@@ -221,7 +222,9 @@ secuencia de montaje.
 | Versión | Cambio | Estado |
 |---------|--------|--------|
 | V10.0/V10.1 | 6002ZZ → 6703; ancho 4 mm | Superado |
-| V16.2 | Stack 16/38/75/91/124; 4,5:1; 6703; standalone | **Actual (base)** |
+| V16.2 | Stack 16/38/75/91/124; 4,5:1; 6703; standalone | Superado |
+| V16.3 | Compuestos con varilla redonda Ø8 + prisioneros | Alternativa (archivada) |
+| **V16.4** | **Compuestos vuelven a varilla cuadrada 1/4"; acople positivo; adaptadores todos cuadrados** | **Actual (base)** |
 | Ensamble total V1 | Marco placa 18 mm + vigas; caja/barril/portador integrados; fase -7,5°; 4 tramos de varilla cuadrada | **Actual** |
 | Tornillos V2 | Co-rotante, 16 fases, 4 bloques, eje 1/4" | **Actual** |
 | Docs 6:1 / 6001 | Ratio y rodamiento incorrectos | **Obsoleto** |

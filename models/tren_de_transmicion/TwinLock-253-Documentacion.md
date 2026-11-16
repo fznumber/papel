@@ -2,7 +2,7 @@
 
 **Tren co-rotante split-power para extrusor de doble tornillo**
 
-**Fuente de verdad:** `twinlock_253_v16_2.scad` (standalone).
+**Fuente de verdad:** `twinlock_253_v16_4.scad` (standalone).
 
 **Ensamble total:** `models/assembly_total.scad`; ver `models/assembly_total_README.md`.
 
@@ -201,7 +201,7 @@ El plástico se ablanda a ~75 °C. Los engranajes de salida, a módulo 1,5 y 20 
 
 **Varilla cuadrada:** 4 tramos de 1/4" (6,35 mm) en total: 2 × 140 mm para las salidas y 2 × 118 mm para los compuestos. Los compuestos impresos en PETG se usan sólo para verificar el montaje en vacío; con pulpa, acero.
 
-Los STL de `stls_transmision/` e `imprimir/` pueden estar desactualizados: regenerarlos desde `twinlock_253_v16_2.scad` antes de imprimir. `generar_transmision.sh` ya incluye `compound_shaft`.
+Los STL de `stls_transmision/` e `imprimir/` pueden estar desactualizados: regenerarlos desde `twinlock_253_v16_4.scad` antes de imprimir. `generar_transmision.sh` ya incluye `compound_shaft`.
 
 ### Secuencia de montaje
 

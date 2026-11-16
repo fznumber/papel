@@ -2,7 +2,7 @@
 
 **Archivo:** `models/assembly_total.scad` (OpenSCAD 2021.01)
 **Subensambles:** `models/barril/barril.scad`, `models/portador/portador.scad`,
-`models/tren_de_transmicion/twinlock_253_v16_2.scad`,
+`models/tren_de_transmicion/twinlock_253_v16_4.scad`,
 `models/tornillo/Tornillos_Modulares_V2.scad`
 
 **Última validación:** 31 Oct 2026
@@ -17,7 +17,7 @@ Este archivo integra en un solo modelo:
 
 - El **marco**: placa vertical de 18 mm + dos vigas de 40 × 60 × 590 mm +
   pata trasera de apoyo.
-- La **caja TwinLock-253 V16.2**, girada 180° sobre Y y atornillada a la
+- La **caja TwinLock-253 V16.4**, girada 180° sobre Y y atornillada a la
   cara trasera de la placa vertical.
 - El **barril V4.3** de 3 secciones (180 + 180 + 178 = 538 mm) y la tapa
   motriz, atornillados a la cara delantera de la placa.
@@ -485,7 +485,7 @@ interferencias de montaje.
 | Archivo | Rol |
 |---|---|
 | `models/assembly_total.scad` | Ensamble total y flags de exportación |
-| `models/tren_de_transmicion/twinlock_253_v16_2.scad` | Fuente de verdad de la caja |
+| `models/tren_de_transmicion/twinlock_253_v16_4.scad` | Fuente de verdad de la caja |
 | `models/tren_de_transmicion/TwinLock-253-Documentacion.md` | Cotas, apilado y límites de la caja |
 | `models/tren_de_transmicion/ESTADO_PROYECTO.md` | Estado y próximos pasos |
 | `models/barril/barril.scad` | Barril V4.3 |

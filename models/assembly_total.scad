@@ -120,7 +120,7 @@ use <tornillo/Tornillos_Modulares_V2.scad>
 // Se incluye la caja para reutilizar sus variables y módulos.
 // El guard evita que el ensamble standalone se renderice dentro de este archivo.
 TWINLOCK_NO_RENDER = true;
-include <tren_de_transmicion/twinlock_253_v16_2.scad>
+include <tren_de_transmicion/twinlock_253_v16_4.scad>
 
 /* ==========================================================
    MARCO
