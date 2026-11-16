@@ -1,6 +1,9 @@
 /* ==========================================================
-   CAJA DE TRANSMISIÓN "TWINLOCK-253" (V16.2 FIX)
+   CAJA DE TRANSMISIÓN "TWINLOCK-253" (V16.3 VARILLA REDONDA)
    ----------------------------------------------------------
+   - V16.3: El eje de los compuestos (Crimson, OrangeRed, LimeGreen
+     y ForestGreen) pasa de varilla cuadrada a varilla REDONDA de 8 mm.
+     Los engranajes de salida (azul) mantienen su eje cuadrado de 6,35 mm.
    - FIX: Eje cuadrado pasante perfora limpiamente los 
      adaptadores inferiores.
    - FIX V16.2: Distancia base_plate-mid_plate reducida de 88mm 
@@ -12,7 +15,7 @@
    - Arquitectura Co-Rotante. Engranajes 100% integrados.
    ========================================================== */
 
-part = "assembly"; // [assembly, base_plate, mid_plate, motor_plate, spacer_base_front, pillar_lower, pillar_upper, comp_corona, comp_pinion_L, comp_pinion_R, out_gear_L, out_gear_R, motor_pinion, bearing_adapter, compound_shaft, motor_cradle]
+part = "assembly"; // [assembly, base_plate, mid_plate, motor_plate, spacer_base_front, pillar_lower, pillar_upper, comp_corona, comp_pinion_L, comp_pinion_R, out_gear_L, out_gear_R, motor_pinion, bearing_adapter, bearing_adapter_round, compound_shaft, motor_cradle]
 
 /* --- PARÁMETROS GENERALES --- */
 motor_shaft_d = 8.2;      // NEMA23 eje 8 mm (0,2 mm de holgura)
@@ -22,13 +25,15 @@ motor_bolt_d = 5.5;
 motor_pilot_d = 38.5;     
 square_shaft_side = 6.35; 
 square_clearance = 0.3;   
+round_shaft_d = 8;        // Varilla redonda de los compuestos
+round_clearance = 0.2;    // Holgura diametral (agujero = 8.2 mm)
 backlash_offset = 0.25;   
 
-/* --- HOLGURA ENTRE PISOS (NUEVO) --- */
+/* --- HOLGURA ENTRE PISOS --- */
 stage_z_clearance = 2;    // Holgura real entre dientes de out_gear_L (Piso1) y out_gear_R (Piso2)
-neck_R = 17;               // Cuello superior de Piso 2 (antes hardcodeado como "17" en varios sitios)
+neck_R = 17;              // Cuello superior de Piso 2
 
-/* --- PILARES CUADRADOS (NUEVO) --- */
+/* --- PILARES CUADRADOS --- */
 // Lado del pilar cuadrado. 12mm deja una media-diagonal de ~8.49mm, que entra
 // sin sobresalir dentro del boss circular más ajustado de las placas (radio 9mm
 // en base_plate). Súbelo un poco si quieres más rigidez, pero revisa que
@@ -68,17 +73,15 @@ pos_Mot = [0, y_mot];
 /* --- NIVELES Z --- */
 Z_base = 0;             
 Z_lvl1 = 16;            
-Z_lvl2 = Z_lvl1 + trans_width + stage_z_clearance;   // 16 + 20 + 2 = 38 (antes 51, fijo)
-Z_mid_pl = Z_lvl2 + trans_width + neck_R;              // 38 + 20 + 17 = 75 (antes 88, fijo)
+Z_lvl2 = Z_lvl1 + trans_width + stage_z_clearance;   // 16 + 20 + 2 = 38
+Z_mid_pl = Z_lvl2 + trans_width + neck_R;            // 38 + 20 + 17 = 75
 
-// Etapa 3 (mid_plate <-> motor_plate) SIN TOCAR: mismos offsets que en el diseño
-// original (Z_lvl3 - Z_mid_pl = 16, Z_motor_pl - Z_mid_pl = 49), pero ahora relativos
-// a Z_mid_pl para que la reducción de abajo no le "robe" ni le "agregue" espacio.
-offset_lvl3     = 16;   // = 104 - 88 (original)
-offset_motor_pl = 49;   // = 137 - 88 (original)
+// Etapa 3 (mid_plate <-> motor_plate): offsets relativos a Z_mid_pl.
+offset_lvl3     = 16;
+offset_motor_pl = 49;
 
-Z_lvl3 = Z_mid_pl + offset_lvl3;         // 75 + 16 = 91  (antes 104)
-Z_motor_pl = Z_mid_pl + offset_motor_pl; // 75 + 49 = 124 (antes 137)
+Z_lvl3 = Z_mid_pl + offset_lvl3;         // 91
+Z_motor_pl = Z_mid_pl + offset_motor_pl; // 124
 Z_cradle = Z_motor_pl;   
 
 /* ==========================================================
@@ -115,10 +118,15 @@ module involute_gear_2d(teeth, m, pa=25) {
     }
 }
 
-// ¡CORREGIDO! El corte ahora empieza desde Z = -30 para atravesar cuellos inferiores
+// El corte empieza desde Z = -30 para atravesar cuellos inferiores
 module square_cut(h) {
     s = square_shaft_side + square_clearance; 
     translate([0,0,-30]) linear_extrude(h + 60) square([s, s], center=true);
+}
+
+// Agujero redondo pasante para los compuestos (mismo recorrido que square_cut)
+module round_cut(h) {
+    translate([0,0,-30]) cylinder(d = round_shaft_d + round_clearance, h = h + 60, $fn = 48);
 }
 
 module bottom_adapter_pos(neck) {
@@ -141,28 +149,32 @@ module top_adapter_hole(neck) {
    ENGRANAJES 100% INTEGRADOS Y CALIBRADOS
    ========================================================== */
 
-// PISO 1 (Lado Izquierdo) - Cortados con square_cut
+// PISO 1 (Lado Izquierdo)
+// Engranaje de salida: eje CUADRADO
 module p_out_gear_L() { 
     difference() { union() { linear_extrude(trans_width, convexity=5) involute_gear_2d(teeth_out, gear_module, pressure_angle); bottom_adapter_pos(6); } square_cut(100); bottom_adapter_hole(6); }
 }
+// Piñón compuesto: eje REDONDO
 module p_comp_pinion_L() { 
-    difference() { union() { linear_extrude(trans_width, convexity=5) involute_gear_2d(teeth_cmp, gear_module, pressure_angle); bottom_adapter_pos(6); } square_cut(100); bottom_adapter_hole(6); }
+    difference() { union() { linear_extrude(trans_width, convexity=5) involute_gear_2d(teeth_cmp, gear_module, pressure_angle); bottom_adapter_pos(6); } round_cut(100); bottom_adapter_hole(6); }
 }
 
 // PISO 2 (Lado Derecho)
+// Engranaje de salida: eje CUADRADO
 module p_out_gear_R() { 
     difference() { union() { linear_extrude(trans_width, convexity=5) involute_gear_2d(teeth_out, gear_module, pressure_angle); top_adapter_pos(neck_R); } square_cut(100); top_adapter_hole(neck_R); }
 }
+// Piñón compuesto: eje REDONDO
 module p_comp_pinion_R() { 
-    difference() { union() { linear_extrude(trans_width, convexity=5) involute_gear_2d(teeth_cmp, gear_module, pressure_angle); top_adapter_pos(neck_R); } square_cut(100); top_adapter_hole(neck_R); }
+    difference() { union() { linear_extrude(trans_width, convexity=5) involute_gear_2d(teeth_cmp, gear_module, pressure_angle); top_adapter_pos(neck_R); } round_cut(100); top_adapter_hole(neck_R); }
 }
 
-// PISO 3 (Coronas)
+// PISO 3 (Coronas): eje REDONDO
 module p_comp_corona() { 
-    difference() { union() { linear_extrude(trans_width, convexity=5) involute_gear_2d(teeth_cor, gear_module, pressure_angle); top_adapter_pos(13); } square_cut(100); top_adapter_hole(13); }
+    difference() { union() { linear_extrude(trans_width, convexity=5) involute_gear_2d(teeth_cor, gear_module, pressure_angle); top_adapter_pos(13); } round_cut(100); top_adapter_hole(13); }
 }
 
-// PIÑÓN DEL MOTOR (Corregido: Llega perfectamente a la placa intermedia)
+// PIÑÓN DEL MOTOR (Llega perfectamente a la placa intermedia)
 module p_motor_pinion() {
     difference() { 
         union() {
@@ -180,31 +192,32 @@ module p_motor_pinion() {
         // Agujero pasante para el eje del Motor (8.2mm)
         translate([0,0,-12]) cylinder(d=motor_shaft_d, h=60, $fn=32); 
         
-        // Agujeros para Prisioneros M3 a 90 grados (Para agarrar el motor con fuerza)
+        // Agujeros para Prisioneros M3 a 90 grados
         translate([0, 0, trans_width + 7.5]) rotate([0, 90, 0]) cylinder(d=2.5, h=40, center=true, $fn=16); 
         translate([0, 0, trans_width + 7.5]) rotate([90, 0, 0]) cylinder(d=2.5, h=40, center=true, $fn=16);
     }
 }
 
-// EJE CUADRADO DE LOS COMPUESTOS
+// EJE REDONDO DE LOS COMPUESTOS (Ø8 mm)
 // Conecta el piñón Z16 (piso 1/2) con la corona Z54 (piso 3) en cada
 // posición x = ±42,90. Va de z=6 (rodamiento base) a z=124 (placa motor),
-// 118 mm. Sin este eje la corona no transmite par al piñón compuesto.
+// 118 mm. El par se transmite por los prisioneros M3 de cada pieza.
 module p_compound_shaft() {
-    s = square_shaft_side;
-    translate([-s/2, -s/2, 6])
-        cube([s, s, Z_motor_pl - 6], center=false);
+    translate([0, 0, 6])
+        cylinder(d = round_shaft_d, h = Z_motor_pl - 6, $fn = 64);
 }
 
 // LOS 4 ACOPLES SUELTOS
-module p_bearing_adapter() { 
+// round_hole = true  -> agujero redondo (compuestos)
+// round_hole = false -> agujero cuadrado (salidas)
+module p_bearing_adapter(round_hole = false) { 
     difference() { 
         union() { 
             cylinder(d=19, h=6, $fn=32); 
             for (angle = [0:60:300]) { rotate([0, 0, angle]) translate([19/2, 0, 3]) cube([3, 2, 6], center=true); }
             translate([0,0,6 - 0.01]) cylinder(d=bearing_id, h=bearing_w + 0.02, $fn=64); 
         } 
-        square_cut(20); 
+        if (round_hole) round_cut(20); else square_cut(20); 
         translate([0, 0, 3]) rotate([0, 90, 0]) cylinder(d=2.5, h=40, center=true, $fn=16);
     } 
 }
@@ -293,8 +306,7 @@ module p_spacer_base_front() {
     }
 }
 
-// Pilares cuadrados (antes cilíndricos) para impresión más fácil: caras planas,
-// sin necesidad de $fn alto, mejor apoyo en la cama y más fáciles de sujetar/alinear.
+// Pilares cuadrados: caras planas, mejor apoyo en la cama y más fáciles de alinear.
 module p_pillar_lower() {
     h_total = Z_mid_pl - 10;
     difference() {
@@ -336,12 +348,13 @@ if (part == "assembly" && is_undef(TWINLOCK_NO_RENDER)) {
     translate(pos_Mot) translate([0,0,Z_mid_pl + 10 - bearing_w]) dummy_bearing();
     
     // Adaptador en el rodamiento opuesto al cuello integrado del engranaje.
-    // Los adaptadores de salida giran +7,5° para coincidir con el hueco
-    // cuadrado de out_gear_L/R.
+    // Los adaptadores de salida (agujero cuadrado) giran +7,5° para coincidir
+    // con el hueco cuadrado de out_gear_L/R. Los de los compuestos (agujero
+    // redondo) no necesitan orientación.
     translate(pos_Out_R) translate([0,0,16]) rotate([0,0,7.5]) rotate([180,0,0]) color("yellow") p_bearing_adapter();
-    translate(pos_Cmp_R) translate([0,0,16]) rotate([180,0,0]) color("yellow") p_bearing_adapter();
+    translate(pos_Cmp_R) translate([0,0,16]) rotate([180,0,0]) color("yellow") p_bearing_adapter(true);
     translate(pos_Out_L) translate([0,0,Z_mid_pl - 6]) rotate([0,0,7.5]) color("yellow") p_bearing_adapter();
-    translate(pos_Cmp_L) translate([0,0,Z_mid_pl - 6]) color("yellow") p_bearing_adapter();
+    translate(pos_Cmp_L) translate([0,0,Z_mid_pl - 6]) color("yellow") p_bearing_adapter(true);
     
     color("DodgerBlue") translate(pos_Out_L) translate([0,0,Z_lvl1]) rotate([0,0,360/(teeth_out*2)]) p_out_gear_L();
     color("Crimson")    translate(pos_Cmp_L) translate([0,0,Z_lvl1]) p_comp_pinion_L();
@@ -351,7 +364,7 @@ if (part == "assembly" && is_undef(TWINLOCK_NO_RENDER)) {
     color("ForestGreen")translate(pos_Cmp_R) translate([0,0,Z_lvl3]) p_comp_corona();
     color("Gold")       translate(pos_Mot) translate([0,0,Z_lvl3]) p_motor_pinion(); // Fase 0; 10° chocaba con ambas coronas
 
-    // Ejes cuadrados de los compuestos: unen el piñón Z16 con la corona Z54.
+    // Ejes redondos de los compuestos: unen el piñón Z16 con la corona Z54.
     for (pos = [pos_Cmp_L, pos_Cmp_R])
         translate(pos) color("silver") p_compound_shaft();
 
@@ -359,7 +372,8 @@ if (part == "assembly" && is_undef(TWINLOCK_NO_RENDER)) {
 else if (part == "comp_pinion_L") p_comp_pinion_L(); else if (part == "comp_pinion_R") p_comp_pinion_R();
 else if (part == "comp_corona") p_comp_corona(); else if (part == "motor_pinion") p_motor_pinion();
 else if (part == "base_plate") p_base_plate(); else if (part == "mid_plate") p_mid_plate(); else if (part == "motor_plate") p_motor_plate();
-else if (part == "bearing_adapter") p_bearing_adapter(); else if (part == "compound_shaft") p_compound_shaft();
+else if (part == "bearing_adapter") p_bearing_adapter(); else if (part == "bearing_adapter_round") p_bearing_adapter(true);
+else if (part == "compound_shaft") p_compound_shaft();
 else if (part == "spacer_base_front") p_spacer_base_front();
 else if (part == "pillar_lower") p_pillar_lower(); else if (part == "pillar_upper") p_pillar_upper();
 else if (part == "motor_cradle") p_motor_cradle();
